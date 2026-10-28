@@ -10,6 +10,9 @@ import es.iesisidra.datastock.util.LectorConsola;
  * requisitos. El alumnado deberá delegar el acceso a ficheros, la validación
  * y el procesamiento en métodos o clases independientes.</p>
  */
+
+//GIT HUB
+
 public class MenuPrincipal {
     private final Inventario inventario;
 

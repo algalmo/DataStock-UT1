@@ -10,6 +10,9 @@ import java.util.List;
  * importación, validación, búsqueda, exportación ni persistencia: esos son
  * ejercicios que deberá desarrollar el alumnado.</p>
  */
+
+//Apartado 1
+
 public class Inventario {
     private final List<Producto> productos = new ArrayList<>();
 
@@ -18,5 +21,9 @@ public class Inventario {
      * <p>ATENCIÓN: la lista es modificable. El alumnado deberá aplicar las
      * reglas del enunciado antes de añadir o sustituir elementos.</p>
      */
-    public List<Producto> getProductos() { return productos; }
+    public List<Producto> getProductos() { 
+        return productos; 
+    }
+
+
 }

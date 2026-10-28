@@ -108,6 +108,24 @@ public class Inventario {
         return errores;
     }
 
+    public boolean agregarProducto(Producto p){
+        boolean adjuntado = false;
+
+        List<String> errores = validarProducto(p);
+
+        if (errores.isEmpty() && !existeCodigo(p.getCodigo())) {
+            p.setCodigo(p.getCodigo().trim());
+            if (p.getNombre() != null) {
+                p.setNombre(p.getNombre().trim());
+            }
+
+            productos.add(p);
+            adjuntado = true;
+        }
+
+        return adjuntado;
+    }
+
 
 
 

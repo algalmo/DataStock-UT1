@@ -16,6 +16,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import java.io.BufferedWriter;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Element;
+import com.google.gson.GsonBuilder;
+
 
 public class GestorArchivos {
 
@@ -281,6 +290,103 @@ public class GestorArchivos {
                 }
 
                 resultado = resumen.toString();
+            }
+        }
+
+        return resultado;
+    }
+
+    //05
+    public String exportarJSON(String rutaArchivo, Inventario inventario) {
+        String resultado = "";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "Error: La ruta del archivo de salida no es válida.";
+        } else if (inventario == null || inventario.getProductos() == null || inventario.getProductos().isEmpty()) {
+            resultado = "Error: El inventario está vacío. No hay productos para exportar.";
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
+            List<Producto> lista = inventario.getProductos();
+            int total = lista.size();
+
+            try (BufferedWriter bw = Files.newBufferedWriter(ruta)) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(lista, bw);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Fichero generado correctamente.\n");
+                sb.append("Productos exportados: ").append(total);
+
+                resultado = sb.toString();
+            } catch (IOException e) {
+                resultado = "Error al escribir el archivo JSON: " + e.getMessage();
+            }
+        }
+
+        return resultado;
+    }
+
+    
+    public String exportarXML(String rutaArchivo, Inventario inventario) {
+        String resultado = "";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "Error: La ruta del archivo de salida no es válida.";
+        } else if (inventario == null || inventario.getProductos() == null || inventario.getProductos().isEmpty()) {
+            resultado = "Error: El inventario está vacío. No hay productos para exportar.";
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
+            List<Producto> lista = inventario.getProductos();
+            int total = lista.size();
+
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document doc = builder.newDocument();
+
+                Element root = doc.createElement("productos");
+                doc.appendChild(root);
+
+                for (int i = 0; i < lista.size(); i++) {
+                    Producto p = lista.get(i);
+
+                    Element prodElem = doc.createElement("producto");
+
+                    Element codElem = doc.createElement("codigo");
+                    codElem.setTextContent((p.getCodigo() != null) ? p.getCodigo() : "");
+                    prodElem.appendChild(codElem);
+
+                    Element nomElem = doc.createElement("nombre");
+                    nomElem.setTextContent((p.getNombre() != null) ? p.getNombre() : "");
+                    prodElem.appendChild(nomElem);
+
+                    Element precElem = doc.createElement("precio");
+                    precElem.setTextContent((p.getPrecio() != null) ? p.getPrecio().toString() : "");
+                    prodElem.appendChild(precElem);
+
+                    Element stockElem = doc.createElement("stock");
+                    stockElem.setTextContent(String.valueOf(p.getStock()));
+                    prodElem.appendChild(stockElem);
+
+                    root.appendChild(prodElem);
+                }
+
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(ruta.toFile());
+                transformer.transform(source, result);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("Fichero generado correctamente.\n");
+                sb.append("Productos exportados: ").append(total);
+
+                resultado = sb.toString();
+            } catch (Exception e) {
+                resultado = "Error al generar el archivo XML: " + e.getMessage();
             }
         }
 

@@ -119,3 +119,47 @@ Antes de entregar, comprueba que `mvn clean compile` funciona, que el menú no t
 ## 9. Referencia
 
 Consulta el **enunciado DataStock UT1** facilitado en el aula virtual: es la fuente que determina el comportamiento exigido. El SQL y el diagrama del directorio `material_referencia` se facilitan para entender el proyecto completo; **no hay que conectar MySQL en UT1**.
+
+
+
+
+
+
+README PROPIO 
+# DataStock - UT1 
+
+Proyecto correspondiente a la **UT1 (Ficheros y formatos de intercambio de datos)** de la asignatura de Acceso a Datos (2º DAM). 
+
+Esta aplicación de consola permite gestionar el catálogo de productos de una empresa ficticia (DataStock), leyendo y escribiendo datos en diferentes formatos (JSON, XML, binarios y objetos serializados).
+
+## Requisitos del sistema
+* **Java:** JDK 17 o superior.
+* **Gestor de dependencias:** Maven.
+* **Librerías externas:** Gson (configurado en el `pom.xml`).
+* *Nota:* El proyecto ha sido desarrollado y probado en **Ubuntu Linux** utilizando **Visual Studio Code**.
+
+## Estructura del proyecto
+El código fuente está organizado en los siguientes paquetes dentro de `src/main/java/es/iesisidra/datastock/`:
+
+* `modelo/`: Clases de datos (`Producto`, `Categoria`, `Proveedor`).
+* `servicio/`: Contiene la lógica principal de la práctica. Aquí destacan `Inventario.java` (para gestionar la lista en memoria) y **`GestorArchivos.java`** (donde se implementan todos los requisitos de lectura/escritura de la UT1).
+* `ui/`: Clases para la interfaz por consola (`MenuPrincipal`).
+* `util/`: Herramientas de ayuda como el lector de datos por teclado.
+* **`complementarias/`**: Contiene las clases `XPathActividad` y `AccesoAleatorioActividad`, que son independientes del menú principal.
+
+## Opciones del Menú Principal
+Al ejecutar la aplicación (`App.java`), se presenta un menú con las siguientes opciones funcionales:
+
+1. **Explorar directorio (RF-FIC-01):** Muestra el contenido de una ruta y diferencia si es archivo o carpeta.
+2. **Importar catálogo (RF-FIC-02 y 03):** Permite cargar productos a la memoria desde ficheros `.json` o `.xml`, controlando errores de sintaxis y duplicados.
+3. **Exportar catálogo (RF-FIC-05):** Guarda los productos que hay en memoria en un nuevo fichero `.json` o `.xml`, ordenados por código.
+4. **Guardar/Recuperar serialización (RF-FIC-06):** Guarda el estado exacto de los productos en memoria en un archivo `.dat` (binario) para recuperarlo en futuras ejecuciones.
+
+## Instrucciones de ejecución
+
+### 1. Ejecutar el programa principal (Menú)
+Desde la terminal, en la raíz del proyecto (donde está el `pom.xml`), compila el proyecto con Maven y ejecuta la clase `App`:
+
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass="es.iesisidra.datastock.App"

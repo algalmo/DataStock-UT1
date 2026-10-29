@@ -1,6 +1,8 @@
 package es.iesisidra.datastock.servicio;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -387,6 +389,58 @@ public class GestorArchivos {
                 resultado = sb.toString();
             } catch (Exception e) {
                 resultado = "Error al generar el archivo XML: " + e.getMessage();
+            }
+        }
+
+        return resultado;
+    }
+
+    //06
+     
+    public String guardarInventarioDAT(String rutaArchivo, Inventario inventario) {
+        String resultado = "";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "Error: La ruta del archivo no es válida.";
+        } else if (inventario == null || inventario.getProductos() == null || inventario.getProductos().isEmpty()) {
+            resultado = "Error: El inventario está vacío. No hay datos para guardar.";
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
+
+            try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(ruta))) {
+                oos.writeObject(inventario.getProductos());
+                resultado = "Inventario guardado correctamente.\nProductos guardados: " + inventario.getProductos().size();
+            } catch (IOException e) {
+                resultado = "Error al guardar el inventario: " + e.getMessage();
+            }
+        }
+
+        return resultado;
+    }
+
+    public String recuperarInventarioDAT(String rutaArchivo, Inventario inventario) {
+        String resultado = "";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "Error: La ruta del archivo no es válida.";
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
+
+            if (!Files.exists(ruta)) {
+                resultado = "Error: La ruta especificada no existe.";
+            } else {
+                try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(ruta))) {
+                    List<Producto> productosCargados = (List<Producto>) ois.readObject();
+
+                    inventario.getProductos().clear();
+                    inventario.getProductos().addAll(productosCargados);
+
+                    resultado = "Inventario recuperado correctamente.\nProductos disponibles: " + inventario.getProductos().size();
+                } catch (ClassNotFoundException | ClassCastException e) {
+                    resultado = "Error: Fichero corrupto o incompatible.";
+                } catch (IOException e) {
+                    resultado = "Error de lectura en el archivo: " + e.getMessage();
+                }
             }
         }
 

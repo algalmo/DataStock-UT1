@@ -41,7 +41,7 @@ public class MenuPrincipal {
             System.out.println("0. Salir");
             opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 6);
             switch (opcion) {
-                //Explorar ficheros y directorios
+                // Explorar ficheros y directorios
                 case 1 -> {
                     String ruta = LectorConsola.leerTexto("Ruta a explorar: ");
                     String resultado = gestorArchivos.explorarRuta(ruta);
@@ -49,7 +49,7 @@ public class MenuPrincipal {
                     LectorConsola.pausar();
                 }
 
-                //Importar JSON
+                // Importar JSON
                 case 2 -> {
                     String ruta = LectorConsola.leerTexto("Ruta del fichero JSON: ");
                     String resultado = gestorArchivos.importarJSON(ruta, inventario);
@@ -57,7 +57,7 @@ public class MenuPrincipal {
                     LectorConsola.pausar();
                 }
 
-                //Importar XML
+                // Importar XML
                 case 3 -> {
                     String ruta = LectorConsola.leerTexto("Ruta del fichero XML: ");
                     String resultado = gestorArchivos.importarXML(ruta, inventario);
@@ -153,23 +153,36 @@ public class MenuPrincipal {
             System.out.println("0. Volver al menú principal");
             opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 2);
             switch (opcion) {
-                case 1 -> pendiente("RF-FIC-06 · Guardar inventario");
-                case 2 -> pendiente("RF-FIC-06 · Recuperar inventario");
+                case 1 -> {
+                    System.out.println("\n===== GUARDAR INVENTARIO =====");
+                    String ruta = LectorConsola.leerTexto("Ruta: ");
+                    String resultado = gestorArchivos.guardarInventarioDAT(ruta, inventario);
+                    System.out.println(resultado);
+                    LectorConsola.pausar();
+                }
+                case 2 -> {
+                    System.out.println("\n===== RECUPERAR INVENTARIO =====");
+                    String ruta = LectorConsola.leerTexto("Ruta: ");
+
+                    int cantidadActual = inventario.getProductos().size();
+                    System.out.println("Actualmente hay " + cantidadActual + " productos en memoria.");
+                    System.out.println("La recuperación sustituirá el inventario actual.");
+
+                    String respuesta = LectorConsola.leerTexto("¿Continuar? (S/N): ");
+
+                    if (respuesta != null && respuesta.trim().equalsIgnoreCase("S")) {
+                        String resultado = gestorArchivos.recuperarInventarioDAT(ruta, inventario);
+                        System.out.println(resultado);
+                    } else {
+                        System.out.println("Operación cancelada.");
+                    }
+                    LectorConsola.pausar();
+                }
                 case 0 -> {
                 }
-                default -> throw new IllegalStateException("Opción inesperada");
+                default -> System.out.println("Opción no válida.");
             }
         } while (opcion != 0);
-    }
-
-    /**
-     * Sustituir las llamadas por servicios propios a medida que se implementen los
-     * RF.
-     */
-    private void pendiente(String requisito) {
-        System.out.println(ColoresConsola.pintar("[PENDIENTE] " + requisito, ColoresConsola.AMARILLO));
-        System.out.println("Esta funcionalidad debe desarrollarla el alumnado.");
-        LectorConsola.pausar();
     }
 
 }

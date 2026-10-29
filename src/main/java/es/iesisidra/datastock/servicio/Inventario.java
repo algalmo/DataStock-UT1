@@ -136,10 +136,9 @@ public class Inventario {
         if (this.productos == null || this.productos.isEmpty()) {
             resultado = "No hay productos en el inventario.";
         } else {
-            // Creamos una lista auxiliar para no modificar la lista original
+            
             List<Producto> listaOrdenada = new ArrayList<>(this.productos);
 
-            // Ordenamos por código usando ordenación tradicional (Bubble Sort)
             for (int i = 0; i < listaOrdenada.size() - 1; i++) {
                 for (int j = 0; j < listaOrdenada.size() - i - 1; j++) {
                     String cod1 = listaOrdenada.get(j).getCodigo();

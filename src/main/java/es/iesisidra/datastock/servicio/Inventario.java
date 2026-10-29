@@ -13,6 +13,8 @@ import java.util.List;
  * ejercicios que deberá desarrollar el alumnado.</p>
  */
 
+//Comprobación git hub
+
 
 public class Inventario {
     private final List<Producto> productos = new ArrayList<>(); 

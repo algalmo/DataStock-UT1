@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -20,57 +19,62 @@ import org.w3c.dom.NodeList;
 
 public class GestorArchivos {
 
-    //01
-    public String explorarRuta(String rutaTexto) {
+    // 01
 
-        String resultado = " ";
+    public String explorarRuta(String rutaTexto) {
+        String resultado = "";
 
         if (rutaTexto == null || rutaTexto.trim().isEmpty()) {
-            resultado = "La ruta introducida no es válida";
+            resultado = "La ruta introducida no es válida.";
         } else {
-            Path ruta = Paths.get(rutaTexto.trim());
+            Path ruta = Path.of(rutaTexto.trim());
 
             if (!Files.exists(ruta)) {
-                resultado = "Error: La ruta específica no existe";
+                resultado = "Error: La ruta especificada no existe.";
             } else {
                 StringBuilder sb = new StringBuilder();
+                sb.append("===== EXPLORAR RUTA =====\n");
+                sb.append("Ruta: ").append(rutaTexto).append("\n");
 
                 if (Files.isDirectory(ruta)) {
-                    sb.append("---- DIRECTORIO: ").append(ruta.toAbsolutePath()).append(" ---\n");
+                    int totalFicheros = 0;
+                    int totalDirectorios = 0;
+
                     try (DirectoryStream<Path> stream = Files.newDirectoryStream(ruta)) {
                         for (Path p : stream) {
-                            String tipo = "";
                             if (Files.isDirectory(p)) {
-                                tipo = "[DIR] ";
+                                totalDirectorios++;
+                                sb.append(String.format("%-10s %-20s\n", "[DIR]", p.getFileName()));
                             } else {
-                                tipo = "[FIC] ";
+                                totalFicheros++;
+                                long medida = 0;
+                                try {
+                                    medida = Files.size(p);
+                                } catch (IOException e) {
+                                    medida = 0;
+                                }
+                                String medidaTexto = medida + " bytes";
+                                sb.append(String.format("%-10s %-20s %s\n", "[FICHERO]", p.getFileName(), medidaTexto));
                             }
-                            sb.append(tipo).append(p.getFileName()).append("\n");
                         }
                     } catch (IOException e) {
-                    }
-                } else if (Files.isRegularFile(ruta)) {
-                    sb.append("--- FICHERO: ").append(ruta.getFileName()).append(" ---\n");
-                    sb.append("Ruta absoluta: ").append(ruta.toAbsolutePath()).append("\n");
-                    try {
-                        sb.append("Tamaño: ").append(Files.size(ruta)).append(" bytes\n");
-                    } catch (Exception e) {
-                        sb.append("Tamaño: No se pudo obtener\n");
-                    }
-                    if (Files.isReadable(ruta)) {
-                        sb.append("Lectura: Sí\n");
-                    } else {
-                        sb.append("Lectura: No\n");
+                        sb.append("Error al leer el directorio: ").append(e.getMessage()).append("\n");
                     }
 
-                    if (Files.isWritable(ruta)) {
-                        sb.append("Escritura: Sí\n");
-                    } else {
-                        sb.append("Escritura: No\n");
+                    sb.append("Total ficheros: ").append(totalFicheros)
+                            .append(" | Directorios: ").append(totalDirectorios);
+
+                } else if (Files.isRegularFile(ruta)) {
+                    long tamano = 0;
+                    try {
+                        tamano = Files.size(ruta);
+                    } catch (IOException e) {
+                        tamano = 0;
                     }
-                } else {
-                    sb.append("La ruta existe pero no es un fichero regular ni un directorio.");
+                    sb.append(String.format("%-10s %-20s %d bytes\n", "[FICHERO]", ruta.getFileName(), tamano));
+                    sb.append("Total ficheros: 1 | Directorios: 0");
                 }
+
                 resultado = sb.toString();
             }
         }
@@ -78,29 +82,29 @@ public class GestorArchivos {
         return resultado;
     }
 
-
-    //02
-    public String importarJSON(String rutaArchivo, Inventario inventario){
+    // 02
+    public String importarJSON(String rutaArchivo, Inventario inventario) {
         String resultado = " ";
 
         if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
             resultado = "La ruta del archivo JSON no es válida. ";
-        }else{
-            Path ruta =Path.of(rutaArchivo.trim());
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
 
             if (!Files.exists(ruta) || !Files.isRegularFile(ruta)) {
                 resultado = "Error: El archivo JSON especificado no existe o no es un fichero válido";
-            }else{
+            } else {
                 int encontrados = 0;
                 int importados = 0;
                 int rechazados = 0;
 
                 StringBuilder problemas = new StringBuilder();
 
-                try (BufferedReader br = Files.newBufferedReader(ruta)){
+                try (BufferedReader br = Files.newBufferedReader(ruta)) {
                     Gson gson = new Gson();
-                    List<Producto> listaLeida = gson.fromJson(br, new TypeToken<ArrayList<Producto>>(){}.getType());
-                    
+                    List<Producto> listaLeida = gson.fromJson(br, new TypeToken<ArrayList<Producto>>() {
+                    }.getType());
+
                     if (listaLeida != null) {
                         encontrados = listaLeida.size();
 
@@ -111,45 +115,53 @@ public class GestorArchivos {
                                 boolean adjuntado = inventario.agregarProducto(p);
                                 if (adjuntado) {
                                     importados++;
-                                }else{
+                                } else {
                                     rechazados++;
-                                    problemas.append("-Producto con código ").append(p.getCodigo()).append(" :Código duplicado en el inventario. \n");
+                                    problemas.append("-Producto con código ").append(p.getCodigo())
+                                            .append(" :Código duplicado en el inventario. \n");
 
                                 }
-                            }else{
+                            } else {
                                 rechazados++;
                                 String codProducto = "Desconocido";
                                 if (p != null && p.getCodigo() != null) {
                                     codProducto = p.getCodigo();
                                 }
 
-                                problemas.append("Producto con codigo").append(codProducto).append(" : ").append(String.join(", ", errores)).append("\n");
+                                problemas.append("Producto con codigo").append(codProducto).append(" : ")
+                                        .append(String.join(", ", errores)).append("\n");
                             }
 
                         }
                     }
-                
+
                 } catch (IOException e) {
                     problemas.append("Error de lectura E/S: ").append(e.getMessage()).append("\n");
-                }catch (Exception e) {
+                } catch (Exception e) {
                     problemas.append("Error de formato JSON: ").append(e.getMessage()).append("\n");
                 }
                 StringBuilder resumen = new StringBuilder();
-                resumen.append("--- RESUMEN DE IMPORTACIÓN JSON ---\n");
-                resumen.append("Encontrados: ").append(encontrados).append("\n");
-                resumen.append("Importados:  ").append(importados).append("\n");
-                resumen.append("Rechazados:  ").append(rechazados).append("\n");
+                resumen.append("===== IMPORTAR JSON =====\n");
+                resumen.append("Ruta: ").append(rutaArchivo).append("\n");
+                resumen.append("Productos encontrados: ").append(encontrados).append("\n");
+                resumen.append("Importados: ").append(importados).append(" | Rechazados: ").append(rechazados)
+                        .append("\n");
+
                 if (rechazados > 0 || problemas.length() > 0) {
-                    resumen.append("\nMotivos de rechazo y problemas:\n").append(problemas);
+                    resumen.append("INCIDENCIAS:\n").append(problemas);
+                    resumen.append("Importación finalizada con incidencias.");
+                } else {
+                    resumen.append("Importación finalizada con éxito.");
                 }
 
                 resultado = resumen.toString();
             }
         }
+
         return resultado;
     }
 
-    //03
+    // 03
     public String importarXML(String rutaArchivo, Inventario inventario) {
         String resultado = "";
 
@@ -234,8 +246,8 @@ public class GestorArchivos {
                                 } else {
                                     rechazados++;
                                     problemas.append("- Producto con código '")
-                                             .append(codigo)
-                                             .append("': Código duplicado en el inventario.\n");
+                                            .append(codigo)
+                                            .append("': Código duplicado en el inventario.\n");
                                 }
                             } else {
                                 rechazados++;
@@ -244,10 +256,10 @@ public class GestorArchivos {
                                     codMostrar = codigo;
                                 }
                                 problemas.append("- Producto con código '")
-                                         .append(codMostrar)
-                                         .append("': ")
-                                         .append(String.join(", ", errores))
-                                         .append("\n");
+                                        .append(codMostrar)
+                                        .append("': ")
+                                        .append(String.join(", ", errores))
+                                        .append("\n");
                             }
                         }
                     }
@@ -256,13 +268,16 @@ public class GestorArchivos {
                 }
 
                 StringBuilder resumen = new StringBuilder();
-                resumen.append("== RESUMEN DE IMPORTACIÓN XML ==\n");
-                resumen.append("Encontrados: ").append(encontrados).append("\n");
-                resumen.append("Importados:  ").append(importados).append("\n");
-                resumen.append("Rechazados:  ").append(rechazados).append("\n");
+                resumen.append("===== IMPORTAR XML =====\n");
+                resumen.append("Ruta: ").append(rutaArchivo).append("\n");
+                resumen.append("Leyendo documento XML...\n");
+                resumen.append("Encontrados: ").append(encontrados).append(" | Importados: ").append(importados).append(" | Rechazados: ").append(rechazados).append("\n");
 
                 if (rechazados > 0 || problemas.length() > 0) {
-                    resumen.append("\nMotivos de rechazo y problemas:\n").append(problemas);
+                    resumen.append("INCIDENCIAS:\n").append(problemas);
+                    resumen.append("Importación finalizada con incidencias.");
+                } else {
+                    resumen.append("Importación finalizada.");
                 }
 
                 resultado = resumen.toString();
@@ -272,5 +287,4 @@ public class GestorArchivos {
         return resultado;
     }
 
-    
 }

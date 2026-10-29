@@ -55,4 +55,22 @@ public final class LectorConsola {
 
     /** Detiene el menú hasta que el usuario pulse Intro. */
     public static void pausar() { leerTexto("Pulsa Intro para continuar..."); }
+
+    public static double leerDecimal(String mensaje) {
+        double valor = 0.0;
+        boolean valido = false;
+
+        while (!valido) {
+            System.out.print(mensaje);
+            String entrada = TECLADO.nextLine().trim().replace(',', '.'); // Permite usar tanto coma como punto
+            try {
+                valor = Double.parseDouble(entrada);
+                valido = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Debe introducir un número decimal válido (ej: 12.50).");
+            }
+        }
+
+        return valor;
+    }
 }

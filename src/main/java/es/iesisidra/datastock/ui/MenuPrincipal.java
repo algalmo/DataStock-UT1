@@ -38,9 +38,9 @@ public class MenuPrincipal {
             System.out.println("4. Consultar productos");
             System.out.println("5. Exportar productos");
             System.out.println("6. Guardar y recuperar inventario");
-            System.out.println("7. Consultas XPath");
+
             System.out.println("0. Salir");
-            opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 8);
+            opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 6);
             switch (opcion) {
                 // Explorar ficheros y directorios
                 case 1 -> {
@@ -69,7 +69,6 @@ public class MenuPrincipal {
                 case 4 -> menuConsultas();
                 case 5 -> menuExportaciones();
                 case 6 -> menuSerializacion();
-                case 7 -> menuXPath();
                 case 0 -> System.out.println(ColoresConsola.pintar("Hasta pronto.", ColoresConsola.VERDE));
                 default -> System.out.println("Opción no válida.");
             }
@@ -187,24 +186,5 @@ public class MenuPrincipal {
         } while (opcion != 0);
     }
 
-    private void menuXPath() {
-        System.out.println("\n===== CONSULTAS XPATH =====");
-        String ruta = LectorConsola.leerTexto("Fichero: ");
-
-        System.out.println("1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar");
-        int opcion = LectorConsola.leerOpcion("Opción: ", 1, 4);
-
-        String parametro = "";
-        switch (opcion) {
-            case 1 -> parametro = LectorConsola.leerTexto("Código: ");
-            case 2 -> parametro = LectorConsola.leerTexto("ID Categoría: ");
-            case 3 -> parametro = LectorConsola.leerTexto("Precio mínimo: ");
-            case 4 -> parametro = "";
-        }
-
-        String resultado = gestorArchivos.consultarXPath(ruta, opcion, parametro);
-        System.out.println(resultado);
-        LectorConsola.pausar();
-    }
 
 }

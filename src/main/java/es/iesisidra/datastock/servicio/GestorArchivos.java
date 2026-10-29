@@ -3,6 +3,7 @@ package es.iesisidra.datastock.servicio;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -24,8 +25,15 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Element;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 public class GestorArchivos {
@@ -113,8 +121,20 @@ public class GestorArchivos {
 
                 try (BufferedReader br = Files.newBufferedReader(ruta)) {
                     Gson gson = new Gson();
-                    List<Producto> listaLeida = gson.fromJson(br, new TypeToken<ArrayList<Producto>>() {
-                    }.getType());
+                    JsonElement elemento = JsonParser.parseReader(br);
+                    List<Producto> listaLeida = new ArrayList<>();
+                    Type tipoLista = new TypeToken<ArrayList<Producto>>() {}.getType();
+
+                    if (elemento.isJsonArray()) {
+                        listaLeida = gson.fromJson(elemento, tipoLista);
+                    } else if (elemento.isJsonObject()) {
+                        JsonObject obj = elemento.getAsJsonObject();
+                        if (obj.has("productos")) {
+                            listaLeida = gson.fromJson(obj.getAsJsonArray("productos"), tipoLista);
+                        } else if (obj.has("catalogo")) {
+                            listaLeida = gson.fromJson(obj.getAsJsonArray("catalogo"), tipoLista);
+                        }
+                    }
 
                     if (listaLeida != null) {
                         encontrados = listaLeida.size();
@@ -207,6 +227,8 @@ public class GestorArchivos {
                             String nombre = "";
                             String precioTexto = "";
                             String stockTexto = "";
+                            String idCategoriaTexto = "";
+                            String idProveedorTexto = "";
 
                             NodeList hijos = nodoProducto.getChildNodes();
                             for (int j = 0; j < hijos.getLength(); j++) {
@@ -215,12 +237,16 @@ public class GestorArchivos {
 
                                 if (nombreEtiqueta.equals("codigo")) {
                                     codigo = hijo.getTextContent();
-                                } else if (nombreEtiqueta.equals("nombre")) {
+                                } else if (nombreEtiqueta.equals("nombre") || nombreEtiqueta.equals("denominacion")) {
                                     nombre = hijo.getTextContent();
                                 } else if (nombreEtiqueta.equals("precio")) {
                                     precioTexto = hijo.getTextContent();
                                 } else if (nombreEtiqueta.equals("stock")) {
                                     stockTexto = hijo.getTextContent();
+                                } else if (nombreEtiqueta.equals("idCategoria") || nombreEtiqueta.equals("categoriaId")) {
+                                    idCategoriaTexto = hijo.getTextContent();
+                                } else if (nombreEtiqueta.equals("idProveedor") || nombreEtiqueta.equals("proveedorId")) {
+                                    idProveedorTexto = hijo.getTextContent();
                                 }
                             }
 
@@ -242,11 +268,31 @@ public class GestorArchivos {
                                 }
                             }
 
+                            int idCategoria = 0;
+                            if (idCategoriaTexto != null && !idCategoriaTexto.trim().isEmpty()) {
+                                try {
+                                    idCategoria = Integer.parseInt(idCategoriaTexto.trim());
+                                } catch (NumberFormatException e) {
+                                    idCategoria = 0;
+                                }
+                            }
+
+                            int idProveedor = 0;
+                            if (idProveedorTexto != null && !idProveedorTexto.trim().isEmpty()) {
+                                try {
+                                    idProveedor = Integer.parseInt(idProveedorTexto.trim());
+                                } catch (NumberFormatException e) {
+                                    idProveedor = 0;
+                                }
+                            }
+
                             Producto p = new Producto();
                             p.setCodigo(codigo);
                             p.setNombre(nombre);
                             p.setPrecio(precio);
                             p.setStock(stock);
+                            p.setCategoriaId(idCategoria);
+                            p.setProveedorId(idProveedor);
 
                             List<String> errores = inventario.validarProducto(p);
 
@@ -440,6 +486,97 @@ public class GestorArchivos {
                     resultado = "Error: Fichero corrupto o incompatible.";
                 } catch (IOException e) {
                     resultado = "Error de lectura en el archivo: " + e.getMessage();
+                }
+            }
+        }
+
+        return resultado;
+    }
+
+    //07
+     
+    public String consultarXPath(String rutaArchivo, int opcion, String parametro) {
+        String resultado = "";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "Error: La ruta del archivo no es válida.";
+        } else {
+            Path ruta = Path.of(rutaArchivo.trim());
+
+            if (!Files.exists(ruta)) {
+                resultado = "Error: El fichero especificado no existe.";
+            } else {
+                try {
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    Document doc = builder.parse(ruta.toFile());
+
+                    XPathFactory xPathFactory = XPathFactory.newInstance();
+                    XPath xpath = xPathFactory.newXPath();
+
+                    StringBuilder sb = new StringBuilder();
+
+                    switch (opcion) {
+                        case 1 -> { 
+                            String expresion = "/catalogo/producto[codigo='" + parametro + "']";
+                            NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
+                            
+                            int contador = 0;
+                            for (int i = 0; i < nodos.getLength(); i++) {
+                                Element elem = (Element) nodos.item(i);
+                                String cod = elem.getElementsByTagName("codigo").item(0).getTextContent();
+                                String nom = elem.getElementsByTagName("nombre").item(0).getTextContent();
+                                String prec = elem.getElementsByTagName("precio").item(0).getTextContent();
+                                sb.append(String.format("%-10s %-25s %s €\n", cod, nom, prec));
+                                contador++;
+                            }
+                            sb.append("Productos encontrados: ").append(contador);
+                        }
+                        case 2 -> { // Por categoría
+                            String expresion = "/catalogo/producto[categoriaId='" + parametro + "']";
+                            NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
+                            
+                            int contador = 0;
+                            for (int i = 0; i < nodos.getLength(); i++) {
+                                Element elem = (Element) nodos.item(i);
+                                String cod = elem.getElementsByTagName("codigo").item(0).getTextContent();
+                                String nom = elem.getElementsByTagName("nombre").item(0).getTextContent();
+                                String prec = elem.getElementsByTagName("precio").item(0).getTextContent();
+                                sb.append(String.format("%-10s %-25s %s €\n", cod, nom, prec));
+                                contador++;
+                            }
+                            sb.append("Productos encontrados: ").append(contador);
+                        }
+                        case 3 -> { // Precio superior
+                            double precioMin = Double.parseDouble(parametro);
+                            String expresion = "/catalogo/producto[precio > " + precioMin + "]";
+                            NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
+
+                            int contador = 0;
+                            for (int i = 0; i < nodos.getLength(); i++) {
+                                Element elem = (Element) nodos.item(i);
+                                String cod = elem.getElementsByTagName("codigo").item(0).getTextContent();
+                                String nom = elem.getElementsByTagName("nombre").item(0).getTextContent();
+                                String prec = elem.getElementsByTagName("precio").item(0).getTextContent();
+                                sb.append(String.format("%-10s %-25s %s €\n", cod, nom, prec));
+                                contador++;
+                            }
+                            sb.append("Productos encontrados: ").append(contador);
+                        }
+                        case 4 -> { // Contar
+                            String expresion = "count(/catalogo/producto)";
+                            Double total = (Double) xpath.evaluate(expresion, doc, XPathConstants.NUMBER);
+                            sb.append("Total productos en catálogo: ").append(total.intValue());
+                        }
+                        default -> sb.append("Opción no válida.");
+                    }
+
+                    resultado = sb.toString();
+
+                } catch (NumberFormatException e) {
+                    resultado = "Error: El precio introducido no es un valor numérico válido.";
+                } catch (Exception e) {
+                    resultado = "Error al procesar el archivo XML: " + e.getMessage();
                 }
             }
         }

@@ -1,0 +1,21 @@
+--- Ejecución de CP-RAF-03 (entradas tecleadas: [datos/salidas/stock.bin] [3] [2] [15] [4] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Registros: 4 | Tamaño: 144 bytes
+Posición a modificar (0-3): RAT-002 | 14.5 € | stock 8
+Nuevo stock: Actualización correcta: stock 8 → 15
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Registros: 4 | Tamaño: 144 bytes
+0: AUR-004 | 45.0 € | stock 15
+1: MON-003 | 149.99 € | stock 6
+2: RAT-002 | 14.5 € | stock 15
+3: TEC-001 | 19.95 € | stock 12
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+
+$ cmp -l datos/salidas/stock_antes.bin datos/salidas/stock.bin
+108  10  17
+

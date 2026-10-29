@@ -1,70 +1,152 @@
 package es.iesisidra.datastock.complementarias;
 
 import es.iesisidra.datastock.modelo.Producto;
+import es.iesisidra.datastock.servicio.GestorArchivos;
+import es.iesisidra.datastock.servicio.Inventario;
 import es.iesisidra.datastock.util.LectorConsola;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * Punto de entrada reservado para RF-FIC-08: RandomAccessFile.
- * <p>Actividad obligatoria e independiente del menú principal.</p>
+ * <p>
+ * Actividad obligatoria e independiente del menú principal.
+ * </p>
  */
 public final class AccesoAleatorioActividad {
 
     private static final int TAMANO_REGISTRO = 36;
+    private static final int LONGITUD_CODIGO = 12;
+    private static final int DESPLAZAMIENTO_STOCK = 32;
 
-    private AccesoAleatorioActividad() { }
+    private AccesoAleatorioActividad() {
+    }
 
     public static void main(String[] args) {
         System.out.println("===== ACCESO ALEATORIO =====");
         String ruta = LectorConsola.leerTexto("Fichero de stock (ej: datos/salidas/stock.bin): ");
+        if (ruta.trim().isEmpty()) {
+            System.out.println("Error: La ruta no es válida.");
+            return;
+        }
         File archivo = new File(ruta.trim());
 
-        if (!archivo.exists()) {
-            System.out.println("El fichero especificado no existe.");
-            String resp = LectorConsola.leerTexto("¿Deseas generar " + ruta + " con productos de prueba? (s/n): ");
-            if (resp.equalsIgnoreCase("s")) {
-                List<Producto> prueba = obtenerProductosPrueba();
-                generarFicheroBinario(archivo, prueba);
-            } else {
-                return;
+        int opcion;
+        do {
+            System.out.println("\n1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock"
+                    + " | 4. Mostrar todos | 0. Salir");
+            opcion = LectorConsola.leerOpcion("Opción: ", 0, 4);
+
+            switch (opcion) {
+                case 1 -> generar(archivo);
+                case 2 -> consultar(archivo);
+                case 3 -> modificarStock(archivo);
+                case 4 -> mostrarTodos(archivo);
+                default -> {
+
+                }
             }
+        } while (opcion != 0);
+    }
+
+    private static void generar(File archivo) {
+        Inventario inventario = new Inventario();
+        GestorArchivos gestor = new GestorArchivos();
+
+        int origen = LectorConsola.leerOpcion("Cargar productos desde: 1. JSON | 2. Inventario .dat | 0. Cancelar: ", 0,
+                2);
+        if (origen == 0) {
+            return;
+        }
+        String rutaOrigen = LectorConsola.leerTexto("Ruta del fichero: ");
+        if (origen == 1) {
+            System.out.println(gestor.importarJSON(rutaOrigen, inventario));
+        } else {
+            System.out.println(gestor.recuperarInventarioDAT(rutaOrigen, inventario));
         }
 
-        if (archivo.length() == 0 || archivo.length() % TAMANO_REGISTRO != 0) {
-            System.out.println("Error: El fichero es inválido (su tamaño no es múltiplo de 36 bytes).");
+        if (inventario.estaVacio()) {
+            System.out.println("El inventario está vacío. No se genera el fichero.");
             return;
         }
 
-        long totalRegistros = archivo.length() / TAMANO_REGISTRO;
-        System.out.println("Fichero: " + archivo.getPath());
-        System.out.println("Registros: " + totalRegistros + " | Tamaño: " + archivo.length() + " bytes");
+        File carpeta = archivo.getAbsoluteFile().getParentFile();
+        if (archivo.isDirectory() || carpeta == null || !carpeta.isDirectory()) {
+            System.out.println("Error: El directorio de destino no existe o la ruta es un directorio.");
+            return;
+        }
+        if (archivo.exists() && !LectorConsola.confirmar("El fichero ya existe y se va a sobrescribir. ¿Continuar?")) {
+            System.out.println("Operación cancelada. El fichero original no se ha modificado.");
+            return;
+        }
+
+        List<Producto> lista = inventario.ordenadosPorCodigo();
 
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "rw")) {
-            int pos = LectorConsola.leerEntero("Consultar posición (0-" + (totalRegistros - 1) + "): ");
+            raf.setLength(0);
 
-            if (pos < 0 || pos >= totalRegistros) {
-                System.out.println("Error: Posición fuera de rango.");
-                return;
+            for (Producto p : lista) {
+                String cod = p.getCodigo();
+                if (cod.length() > LONGITUD_CODIGO) {
+                    cod = cod.substring(0, LONGITUD_CODIGO);
+                } else {
+                    cod = String.format("%-" + LONGITUD_CODIGO + "s", cod);
+                }
+
+                for (int i = 0; i < LONGITUD_CODIGO; i++) {
+                    raf.writeChar(cod.charAt(i));
+                }
+                raf.writeDouble(p.getPrecio().doubleValue());
+                raf.writeInt(p.getStock());
             }
 
-            int desplazamientoInicio = pos * TAMANO_REGISTRO;
-            raf.seek(desplazamientoInicio);
+            System.out.println("Fichero binario generado correctamente (" + lista.size() + " registros).");
+        } catch (IOException e) {
+            System.out.println("Error al generar el fichero binario: " + e.getMessage());
+        }
+    }
 
-            StringBuilder sbCodigo = new StringBuilder();
-            for (int i = 0; i < 12; i++) {
-                sbCodigo.append(raf.readChar());
-            }
-            String codigo = sbCodigo.toString().trim();
-            double precio = raf.readDouble();
+    private static void consultar(File archivo) {
+        long total = comprobarFichero(archivo);
+        if (total < 0) {
+            return;
+        }
+
+        int pos = LectorConsola.leerEntero("Consultar posición (0-" + (total - 1) + "): ");
+        if (pos < 0 || pos >= total) {
+            System.out.println("Error: Posición fuera de rango.");
+            return;
+        }
+
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
+            raf.seek((long) pos * TAMANO_REGISTRO);
+            System.out.println(leerRegistro(raf));
+        } catch (IOException e) {
+            System.out.println("Error al leer el fichero: " + e.getMessage());
+        }
+    }
+
+    private static void modificarStock(File archivo) {
+        long total = comprobarFichero(archivo);
+        if (total < 0) {
+            return;
+        }
+
+        int pos = LectorConsola.leerEntero("Posición a modificar (0-" + (total - 1) + "): ");
+        if (pos < 0 || pos >= total) {
+            System.out.println("Error: Posición fuera de rango.");
+            return;
+        }
+
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "rw")) {
+            raf.seek((long) pos * TAMANO_REGISTRO);
+            System.out.println(leerRegistro(raf));
+
+            raf.seek((long) pos * TAMANO_REGISTRO + DESPLAZAMIENTO_STOCK);
             int stockActual = raf.readInt();
-
-            System.out.println(codigo + " | " + precio + " € | stock " + stockActual);
 
             int nuevoStock = LectorConsola.leerEntero("Nuevo stock: ");
             if (nuevoStock < 0) {
@@ -72,84 +154,54 @@ public final class AccesoAleatorioActividad {
                 return;
             }
 
-            int desplazamientoStock = (pos * TAMANO_REGISTRO) + 32;
-            raf.seek(desplazamientoStock);
+            raf.seek((long) pos * TAMANO_REGISTRO + DESPLAZAMIENTO_STOCK);
             raf.writeInt(nuevoStock);
-
             System.out.println("Actualización correcta: stock " + stockActual + " → " + nuevoStock);
-
-        } catch (Exception e) {
-            System.out.println("Error al acceder al fichero aleatorio: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error al acceder al fichero: " + e.getMessage());
         }
     }
 
-    public static void generarFicheroBinario(File archivo, List<Producto> productos) {
-        if (productos == null || productos.isEmpty()) {
-            System.out.println("El inventario está vacío. No se genera el fichero.");
+    private static void mostrarTodos(File archivo) {
+        long total = comprobarFichero(archivo);
+        if (total < 0) {
             return;
         }
 
-        List<Producto> lista = new ArrayList<>(productos);
-        lista.sort(Comparator.comparing(Producto::getCodigo));
-
-        try (RandomAccessFile raf = new RandomAccessFile(archivo, "rw")) {
-            raf.setLength(0);
-
-            for (Producto p : lista) {
-                String cod = (p.getCodigo() != null) ? p.getCodigo() : "";
-                if (cod.length() > 12) {
-                    cod = cod.substring(0, 12);
-                } else {
-                    cod = String.format("%-12s", cod);
-                }
-
-                for (int i = 0; i < 12; i++) {
-                    raf.writeChar(cod.charAt(i));
-                }
-
-                double precio = (p.getPrecio() != null) ? p.getPrecio().doubleValue() : 0.0;
-                raf.writeDouble(precio);
-                raf.writeInt(p.getStock());
+        try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
+            for (int i = 0; i < total; i++) {
+                System.out.println(i + ": " + leerRegistro(raf));
             }
-
-            System.out.println("Fichero binario generado correctamente (" + lista.size() + " registros).");
-
-        } catch (Exception e) {
-            System.out.println("Error al generar el fichero binario: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error al leer el fichero: " + e.getMessage());
         }
     }
 
-    private static List<Producto> obtenerProductosPrueba() {
-        List<Producto> lista = new ArrayList<>();
+    private static String leerRegistro(RandomAccessFile raf) throws IOException {
+        StringBuilder codigo = new StringBuilder();
+        for (int i = 0; i < LONGITUD_CODIGO; i++) {
+            codigo.append(raf.readChar());
+        }
+        double precio = raf.readDouble();
+        int stock = raf.readInt();
+        return codigo.toString().trim() + " | " + precio + " € | stock " + stock;
+    }
 
-        Producto p1 = new Producto();
-        p1.setCodigo("TEC-001");
-        p1.setNombre("Teclado USB");
-        p1.setPrecio(new BigDecimal("19.95"));
-        p1.setStock(12);
+    private static long comprobarFichero(File archivo) {
+        long registros = -1;
 
-        Producto p2 = new Producto();
-        p2.setCodigo("RAT-002");
-        p2.setNombre("Ratón inalámbrico");
-        p2.setPrecio(new BigDecimal("14.50"));
-        p2.setStock(25);
+        if (!archivo.isFile()) {
+            System.out.println("Error: El fichero no existe. Genéralo primero con la opción 1.");
+        } else if (archivo.length() == 0) {
+            System.out.println("Error: El fichero está vacío.");
+        } else if (archivo.length() % TAMANO_REGISTRO != 0) {
+            System.out.println("Error: Fichero inválido, su tamaño (" + archivo.length()
+                    + " bytes) no es múltiplo de " + TAMANO_REGISTRO + ".");
+        } else {
+            registros = archivo.length() / TAMANO_REGISTRO;
+            System.out.println("Registros: " + registros + " | Tamaño: " + archivo.length() + " bytes");
+        }
 
-        Producto p3 = new Producto();
-        p3.setCodigo("MON-003");
-        p3.setNombre("Monitor 24 pulgadas");
-        p3.setPrecio(new BigDecimal("149.99"));
-        p3.setStock(8);
-
-        Producto p4 = new Producto();
-        p4.setCodigo("AUR-004");
-        p4.setNombre("Auriculares Gamer");
-        p4.setPrecio(new BigDecimal("45.00"));
-        p4.setStock(15);
-
-        lista.add(p1);
-        lista.add(p2);
-        lista.add(p3);
-        lista.add(p4);
-        return lista;
+        return registros;
     }
 }

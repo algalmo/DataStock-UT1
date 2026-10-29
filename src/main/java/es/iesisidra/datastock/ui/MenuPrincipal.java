@@ -1,5 +1,7 @@
 package es.iesisidra.datastock.ui;
 
+import java.io.File;
+
 import es.iesisidra.datastock.servicio.GestorArchivos;
 import es.iesisidra.datastock.servicio.Inventario;
 import es.iesisidra.datastock.util.ColoresConsola;
@@ -26,7 +28,6 @@ public class MenuPrincipal {
         this.gestorArchivos = new GestorArchivos();
     }
 
-    /** Ejecuta el menú principal hasta que el usuario selecciona salir. */
     /** Ejecuta el menú principal hasta que el usuario selecciona salir. */
     public void iniciar() {
         int opcion;
@@ -126,18 +127,8 @@ public class MenuPrincipal {
             System.out.println("0. Volver al menú principal");
             opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 2);
             switch (opcion) {
-                case 1 -> {
-                    String ruta = LectorConsola.leerTexto("Ruta: ");
-                    String resultado = gestorArchivos.exportarJSON(ruta, inventario);
-                    System.out.println(resultado);
-                    LectorConsola.pausar();
-                }
-                case 2 -> {
-                    String ruta = LectorConsola.leerTexto("Ruta: ");
-                    String resultado = gestorArchivos.exportarXML(ruta, inventario);
-                    System.out.println(resultado);
-                    LectorConsola.pausar();
-                }
+                case 1 -> exportar("JSON");
+                case 2 -> exportar("XML");
                 case 0 -> {
                 }
                 default -> System.out.println("Opción no válida. Inténtalo de nuevo.");
@@ -186,5 +177,33 @@ public class MenuPrincipal {
         } while (opcion != 0);
     }
 
+    private void exportar(String formato) {
+        if (inventario.estaVacio()) {
+            System.out.println("Error: El inventario está vacío. No hay productos para exportar.");
+        } else {
+            String ruta = pedirRutaDestino();
+            if (ruta != null) {
+                if (formato.equals("JSON")) {
+                    System.out.println(gestorArchivos.exportarJSON(ruta, inventario));
+                } else {
+                    System.out.println(gestorArchivos.exportarXML(ruta, inventario));
+                }
+            }
+        }
+        LectorConsola.pausar();
+    }
+
+    private String pedirRutaDestino() {
+        String ruta = LectorConsola.leerTexto("Ruta: ");
+
+        if (!ruta.trim().isEmpty() && new File(ruta.trim()).exists()) {
+            if (!LectorConsola.confirmar("El fichero ya existe. ¿Sobrescribir?")) {
+                System.out.println("Operación cancelada. El fichero original no se ha modificado.");
+                ruta = null;
+            }
+        }
+
+        return ruta;
+    }
 
 }

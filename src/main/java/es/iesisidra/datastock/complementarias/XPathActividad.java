@@ -9,18 +9,24 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.helpers.DefaultHandler;
+
 import java.io.File;
+import java.math.BigDecimal;
 
 /**
  * Punto de entrada reservado para RF-FIC-07: consultas XPath.
- * <p>Actividad obligatoria e independiente del menú principal.</p>
+ * <p>
+ * Actividad obligatoria e independiente del menú principal.
+ * </p>
  */
 public final class XPathActividad {
-    
-    private XPathActividad() { }
+
+    private XPathActividad() {
+    }
 
     public static void main(String[] args) {
-        System.out.println("===== CONSULTAS XPATH (RF-FIC-07) =====");
+        System.out.println("===== CONSULTAS XPATH =====");
         String rutaArchivo = LectorConsola.leerTexto("Fichero XML: ");
 
         File archivo = new File(rutaArchivo.trim());
@@ -31,14 +37,19 @@ public final class XPathActividad {
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            
-            // Protección DTD / Entidades externas (XXE)
+
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
             factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 
             DocumentBuilder builder = factory.newDocumentBuilder();
+            builder.setErrorHandler(new DefaultHandler());
             Document doc = builder.parse(archivo);
+
+            if (!doc.getDocumentElement().getNodeName().equals("catalogo")) {
+                System.out.println("Error: La raíz del documento debe ser 'catalogo'.");
+                return;
+            }
 
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xpath = xPathFactory.newXPath();
@@ -50,26 +61,39 @@ public final class XPathActividad {
 
                 switch (opcion) {
                     case 1 -> {
-                        String cod = LectorConsola.leerTexto("Código: ");
-                        String expresion = "/catalogo/producto[codigo='" + cod + "']";
-                        NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
-                        mostrarProductos(nodos);
+                        String cod = LectorConsola.leerTexto("Código: ").trim();
+                        if (cod.isEmpty()) {
+                            System.out.println("Error: El código no puede estar vacío.");
+                        } else {
+                            NodeList todos = (NodeList) xpath.evaluate("/catalogo/producto", doc,
+                                    XPathConstants.NODESET);
+                            mostrarCoincidencias(todos, cod);
+                        }
                     }
                     case 2 -> {
                         int catId = LectorConsola.leerEntero("Categoría ID: ");
-                        String expresion = "/catalogo/producto[categoriaId=" + catId + "]";
-                        NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
-                        mostrarProductos(nodos);
+                        if (catId <= 0) {
+                            System.out.println("Error: La categoría debe ser un entero positivo.");
+                        } else {
+                            String expresion = "/catalogo/producto[categoriaId=" + catId + "]";
+                            NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
+                            mostrarProductos(nodos);
+                        }
                     }
                     case 3 -> {
                         double precioMin = LectorConsola.leerDecimal("Precio mínimo: ");
-                        String expresion = "/catalogo/producto[precio > " + precioMin + "]";
-                        NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
-                        mostrarProductos(nodos);
+                        if (precioMin < 0 || Double.isNaN(precioMin) || Double.isInfinite(precioMin)) {
+                            System.out.println("Error: El precio debe ser un número mayor o igual que 0.");
+                        } else {
+
+                            String precioTexto = BigDecimal.valueOf(precioMin).toPlainString();
+                            String expresion = "/catalogo/producto[precio > " + precioTexto + "]";
+                            NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
+                            mostrarProductos(nodos);
+                        }
                     }
                     case 4 -> {
-                        String expresion = "count(/catalogo/producto)";
-                        Double total = (Double) xpath.evaluate(expresion, doc, XPathConstants.NUMBER);
+                        Double total = (Double) xpath.evaluate("count(/catalogo/producto)", doc, XPathConstants.NUMBER);
                         System.out.println("Total productos en catálogo: " + total.intValue());
                     }
                     case 0 -> continuar = false;
@@ -83,18 +107,43 @@ public final class XPathActividad {
     }
 
     private static void mostrarProductos(NodeList nodos) {
-        int contador = 0;
         for (int i = 0; i < nodos.getLength(); i++) {
-            Element elem = (Element) nodos.item(i);
-            String cod = elem.getElementsByTagName("codigo").item(0).getTextContent();
-            String nom = elem.getElementsByTagName("nombre").item(0).getTextContent();
-            String prec = elem.getElementsByTagName("precio").item(0).getTextContent();
-            
-            System.out.println(cod);
-            System.out.println(nom);
-            System.out.println(prec + " €\n");
-            contador++;
+            mostrarProducto((Element) nodos.item(i));
         }
-        System.out.println("Productos encontrados: " + contador);
+        resumen(nodos.getLength());
+    }
+
+    private static void mostrarCoincidencias(NodeList todos, String codigoBuscado) {
+        int contador = 0;
+        for (int i = 0; i < todos.getLength(); i++) {
+            Element elem = (Element) todos.item(i);
+            if (textoDe(elem, "codigo").equalsIgnoreCase(codigoBuscado)) {
+                mostrarProducto(elem);
+                contador++;
+            }
+        }
+        resumen(contador);
+    }
+
+    private static void mostrarProducto(Element elem) {
+        System.out.println(textoDe(elem, "codigo") + "   " + textoDe(elem, "nombre")
+                + "   " + textoDe(elem, "precio") + " €");
+    }
+
+    private static void resumen(int contador) {
+        if (contador == 0) {
+            System.out.println("No se ha encontrado ningún producto.");
+        } else {
+            System.out.println("Productos encontrados: " + contador);
+        }
+    }
+
+    private static String textoDe(Element producto, String etiqueta) {
+        NodeList lista = producto.getElementsByTagName(etiqueta);
+        String texto = "(sin dato)";
+        if (lista.getLength() > 0) {
+            texto = lista.item(0).getTextContent().trim();
+        }
+        return texto;
     }
 }

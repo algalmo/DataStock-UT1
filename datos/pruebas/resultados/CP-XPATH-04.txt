@@ -1,0 +1,9 @@
+--- Ejecución de CP-XPATH-04 (entradas tecleadas: [datos/pruebas/xpath_catalogo.xml] [4] [0] )
+===== CONSULTAS XPATH =====
+Fichero XML: 
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Total productos en catálogo: 3
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: 
+

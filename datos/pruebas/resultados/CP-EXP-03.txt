@@ -1,0 +1,101 @@
+--- Ejecución de CP-EXP-03 (entradas tecleadas: [2] [datos/pruebas/json_validos_3.json] [] [5] [1] [datos/salidas/exp_03.json] [N] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero JSON: ===== IMPORTAR JSON =====
+Ruta: datos/pruebas/json_validos_3.json
+Productos encontrados: 3
+Importados: 3 | Rechazados: 0
+Importación finalizada con éxito.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: Ruta: El fichero ya existe. ¿Sobrescribir? (S/N): Operación cancelada. El fichero original no se ha modificado.
+Pulsa Intro para continuar...
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+
+$ cat datos/salidas/exp_03.json
+CONTENIDO ORIGINAL
+
+--- Ejecución de CP-EXP-03 (entradas tecleadas: [5] [1] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: Error: El inventario está vacío. No hay productos para exportar.
+Pulsa Intro para continuar...
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+

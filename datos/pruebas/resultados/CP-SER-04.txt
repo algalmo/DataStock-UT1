@@ -1,0 +1,45 @@
+--- Ejecución de CP-SER-04 (entradas tecleadas: [6] [1] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- GUARDAR Y RECUPERAR INVENTARIO ----------
+1. Guardar inventario en fichero .dat
+2. Recuperar inventario desde fichero .dat
+0. Volver al menú principal
+Selecciona una opción: 
+===== GUARDAR INVENTARIO =====
+Error: El inventario está vacío. No hay datos para guardar.
+Pulsa Intro para continuar...
+---------- GUARDAR Y RECUPERAR INVENTARIO ----------
+1. Guardar inventario en fichero .dat
+2. Recuperar inventario desde fichero .dat
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+
+$ ls datos/salidas/inv_04.dat
+ls: cannot access 'datos/salidas/inv_04.dat': No such file or directory
+

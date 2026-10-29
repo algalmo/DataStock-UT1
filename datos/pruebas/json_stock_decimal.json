@@ -1,0 +1,6 @@
+{
+  "productos": [
+    {"codigo":"DEC-001","nombre":"Stock con decimales","precio":10.00,"stock":2.5,"categoriaId":1,"proveedorId":1},
+    {"codigo":"DEC-002","nombre":"Stock correcto","precio":10.00,"stock":2,"categoriaId":1,"proveedorId":1}
+  ]
+}

@@ -1,0 +1,96 @@
+--- Ejecución de CP-XML-03 (entradas tecleadas: [3] [datos/pruebas/xml_con_dtd.xml] [] [3] [datos/pruebas/xml_raiz_incorrecta.xml] [] [3] [datos/pruebas/xml_malformado.xml] [] [4] [1] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero XML: ===== IMPORTAR XML =====
+Ruta: datos/pruebas/xml_con_dtd.xml
+INCIDENCIAS:
+- No se pudo interpretar el documento XML: DOCTYPE is disallowed when the feature "http://apache.org/xml/features/disallow-doctype-decl" set to true.
+Importación cancelada: no se ha añadido ningún producto.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero XML: ===== IMPORTAR XML =====
+Ruta: datos/pruebas/xml_raiz_incorrecta.xml
+INCIDENCIAS:
+- Estructura incorrecta: la raíz del documento debe ser 'catalogo'.
+Importación cancelada: no se ha añadido ningún producto.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero XML: ===== IMPORTAR XML =====
+Ruta: datos/pruebas/xml_malformado.xml
+INCIDENCIAS:
+- No se pudo interpretar el documento XML: The element type "producto" must be terminated by the matching end-tag "</producto>".
+Importación cancelada: no se ha añadido ningún producto.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- CONSULTA DE PRODUCTOS ----------
+1. Listar todos los productos
+2. Buscar producto por código
+3. Buscar productos por nombre
+0. Volver al menú principal
+Selecciona una opción: No hay productos en el inventario.
+Pulsa Intro para continuar...
+---------- CONSULTA DE PRODUCTOS ----------
+1. Listar todos los productos
+2. Buscar producto por código
+3. Buscar productos por nombre
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+

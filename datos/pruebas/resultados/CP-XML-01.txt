@@ -1,0 +1,74 @@
+--- Ejecución de CP-XML-01 (entradas tecleadas: [3] [datos/pruebas/xml_validos_3.xml] [] [4] [1] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero XML: ===== IMPORTAR XML =====
+Ruta: datos/pruebas/xml_validos_3.xml
+Leyendo documento XML...
+Encontrados: 3 | Importados: 3 | Rechazados: 0
+Importación finalizada.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- CONSULTA DE PRODUCTOS ----------
+1. Listar todos los productos
+2. Buscar producto por código
+3. Buscar productos por nombre
+0. Volver al menú principal
+Selecciona una opción: Código: AUR-005
+Nombre: Auriculares Gamer
+Precio: 45.00 € | Stock: 15
+Categoría: 1 | Proveedor: 3
+------------------------------
+Código: CAB-006
+Nombre: Cable HDMI 2 m
+Precio: 8.50 € | Stock: 40
+Categoría: 3 | Proveedor: 2
+------------------------------
+Código: TEC-004
+Nombre: Teclado mecánico
+Precio: 59.90 € | Stock: 7
+Categoría: 1 | Proveedor: 1
+
+Pulsa Intro para continuar...
+---------- CONSULTA DE PRODUCTOS ----------
+1. Listar todos los productos
+2. Buscar producto por código
+3. Buscar productos por nombre
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+

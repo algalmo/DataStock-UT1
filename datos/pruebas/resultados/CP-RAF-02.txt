@@ -1,0 +1,10 @@
+--- Ejecución de CP-RAF-02 (entradas tecleadas: [datos/salidas/stock.bin] [2] [2] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Registros: 4 | Tamaño: 144 bytes
+Consultar posición (0-3): RAT-002 | 14.5 € | stock 8
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+

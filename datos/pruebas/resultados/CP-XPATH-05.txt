@@ -1,0 +1,28 @@
+--- Ejecución de CP-XPATH-05 (entradas tecleadas: [datos/pruebas/xml_con_dtd.xml] )
+===== CONSULTAS XPATH =====
+Fichero XML: Error: no se ha podido leer el XML (mal formado, con DTD o inaccesible): DOCTYPE is disallowed when the feature "http://apache.org/xml/features/disallow-doctype-decl" set to true.
+
+--- Ejecución de CP-XPATH-05 (entradas tecleadas: [datos/pruebas/xml_malformado.xml] )
+===== CONSULTAS XPATH =====
+Fichero XML: Error: no se ha podido leer el XML (mal formado, con DTD o inaccesible): The element type "producto" must be terminated by the matching end-tag "</producto>".
+
+--- Ejecución de CP-XPATH-05 (entradas tecleadas: [datos/pruebas/xml_raiz_incorrecta.xml] )
+===== CONSULTAS XPATH =====
+Fichero XML: Error: La raíz del documento debe ser 'catalogo'.
+
+### Entradas problemáticas que antes hacían fallar la actividad
+--- Ejecución de CP-XPATH-05 (entradas tecleadas: [datos/pruebas/xpath_catalogo.xml] [1] [x' or '1'='1] [3] [10000000] [3] [-5] [0] )
+===== CONSULTAS XPATH =====
+Fichero XML: 
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Código: No se ha encontrado ningún producto.
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Precio mínimo: No se ha encontrado ningún producto.
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Precio mínimo: Error: El precio debe ser un número mayor o igual que 0.
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: 
+

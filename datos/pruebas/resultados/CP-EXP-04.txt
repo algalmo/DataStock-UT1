@@ -1,0 +1,90 @@
+--- Ejecución de CP-EXP-04 (entradas tecleadas: [2] [datos/pruebas/json_validos_3.json] [] [5] [2] [datos/salidas/exp_04.xml] [] [0] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta del fichero JSON: ===== IMPORTAR JSON =====
+Ruta: datos/pruebas/json_validos_3.json
+Productos encontrados: 3
+Importados: 3 | Rechazados: 0
+Importación finalizada con éxito.
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: 
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: Ruta: Fichero generado correctamente.
+Ruta: datos/salidas/exp_04.xml
+Formato: XML
+Productos exportados: 3
+Pulsa Intro para continuar...
+---------- EXPORTAR PRODUCTOS ----------
+1. Exportar productos a JSON
+2. Exportar productos a XML
+0. Volver al menú principal
+Selecciona una opción: 
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 3
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+
+$ cat datos/salidas/exp_04.xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalogo>
+    <producto>
+        <codigo>MON-003</codigo>
+        <nombre>Monitor 24 pulgadas</nombre>
+        <precio>149.99</precio>
+        <stock>8</stock>
+        <categoriaId>2</categoriaId>
+        <proveedorId>2</proveedorId>
+    </producto>
+    <producto>
+        <codigo>RAT-002</codigo>
+        <nombre>Ratón inalámbrico</nombre>
+        <precio>14.50</precio>
+        <stock>25</stock>
+        <categoriaId>1</categoriaId>
+        <proveedorId>1</proveedorId>
+    </producto>
+    <producto>
+        <codigo>TEC-001</codigo>
+        <nombre>Teclado USB</nombre>
+        <precio>19.95</precio>
+        <stock>12</stock>
+        <categoriaId>1</categoriaId>
+        <proveedorId>1</proveedorId>
+    </producto>
+</catalogo>
+

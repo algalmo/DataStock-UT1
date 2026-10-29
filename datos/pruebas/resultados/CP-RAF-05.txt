@@ -1,0 +1,18 @@
+--- Ejecución de CP-RAF-05 (entradas tecleadas: [datos/pruebas/stock_tamano_invalido.bin] [2] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Error: Fichero inválido, su tamaño (100 bytes) no es múltiplo de 36.
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+
+--- Ejecución de CP-RAF-05 (entradas tecleadas: [datos/salidas/no_existe.bin] [2] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Error: El fichero no existe. Genéralo primero con la opción 1.
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+

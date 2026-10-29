@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalogo>
+  <producto>
+    <codigo>TEC-004</codigo><nombre>Teclado mecánico</nombre><precio>59.90</precio>
+    <stock>7</stock><categoriaId>1</categoriaId><proveedorId>1</proveedorId>
+  </producto>
+  <producto>
+    <codigo>AUR-005</codigo><nombre>Auriculares Gamer</nombre><precio>-45.00</precio>
+    <stock>15</stock><categoriaId>1</categoriaId><proveedorId>3</proveedorId>
+  </producto>
+  <producto>
+    <codigo></codigo><nombre>Producto sin código</nombre><precio>8.50</precio>
+    <stock>40</stock><categoriaId>3</categoriaId><proveedorId>2</proveedorId>
+  </producto>
+  <producto>
+    <codigo>CAB-006</codigo><nombre>Cable HDMI 2 m</nombre><precio>8.50</precio>
+    <stock>abc</stock><categoriaId>3</categoriaId><proveedorId>2</proveedorId>
+  </producto>
+  <producto>
+    <codigo>MON-007</codigo><nombre>Monitor 27 pulgadas</nombre><precio>199.00</precio>
+    <stock>4</stock><categoriaId>2</categoriaId><proveedorId>2</proveedorId>
+  </producto>
+</catalogo>

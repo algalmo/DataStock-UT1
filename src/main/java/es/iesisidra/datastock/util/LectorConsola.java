@@ -4,13 +4,17 @@ import java.util.Scanner;
 
 /**
  * Utilidad compartida para solicitar datos por consola.
- * <p>Utiliza un único {@link Scanner} para toda la aplicación. Se leen líneas
+ * <p>
+ * Utiliza un único {@link Scanner} para toda la aplicación. Se leen líneas
  * completas y se convierten cuando procede, evitando conflictos entre
- * {@code nextInt()} y {@code nextLine()}.</p>
+ * {@code nextInt()} y {@code nextLine()}.
+ * </p>
  */
 public final class LectorConsola {
     private static final Scanner TECLADO = new Scanner(System.in);
-    private LectorConsola() { }
+
+    private LectorConsola() {
+    }
 
     /** Lee una línea; permite una cadena vacía. */
     public static String leerTexto(String mensaje) {
@@ -27,9 +31,11 @@ public final class LectorConsola {
     public static int leerEntero(String mensaje) {
         while (true) {
             String texto = leerTexto(mensaje).trim();
-            try { return Integer.parseInt(texto); }
-            catch (NumberFormatException ex) {
-                System.out.println(ColoresConsola.pintar("Introduce un número entero válido.", ColoresConsola.AMARILLO));
+            try {
+                return Integer.parseInt(texto);
+            } catch (NumberFormatException ex) {
+                System.out
+                        .println(ColoresConsola.pintar("Introduce un número entero válido.", ColoresConsola.AMARILLO));
             }
         }
     }
@@ -38,7 +44,8 @@ public final class LectorConsola {
     public static int leerOpcion(String mensaje, int minimo, int maximo) {
         while (true) {
             int opcion = leerEntero(mensaje);
-            if (opcion >= minimo && opcion <= maximo) return opcion;
+            if (opcion >= minimo && opcion <= maximo)
+                return opcion;
             System.out.println(ColoresConsola.pintar("Opción fuera de rango.", ColoresConsola.AMARILLO));
         }
     }
@@ -47,14 +54,18 @@ public final class LectorConsola {
     public static boolean confirmar(String mensaje) {
         while (true) {
             String respuesta = leerTexto(mensaje + " (S/N): ").trim();
-            if (respuesta.equalsIgnoreCase("S")) return true;
-            if (respuesta.equalsIgnoreCase("N")) return false;
+            if (respuesta.equalsIgnoreCase("S"))
+                return true;
+            if (respuesta.equalsIgnoreCase("N"))
+                return false;
             System.out.println("Responde S o N.");
         }
     }
 
     /** Detiene el menú hasta que el usuario pulse Intro. */
-    public static void pausar() { leerTexto("Pulsa Intro para continuar..."); }
+    public static void pausar() {
+        leerTexto("Pulsa Intro para continuar...");
+    }
 
     public static double leerDecimal(String mensaje) {
         double valor = 0.0;

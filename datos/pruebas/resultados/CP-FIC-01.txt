@@ -1,0 +1,69 @@
+--- Ejecución de CP-FIC-01 (entradas tecleadas: [1] [datos/pruebas/dir_prueba] [] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta a explorar: ===== EXPLORAR RUTA =====
+Ruta: datos/pruebas/dir_prueba
+[FICHERO]  b.txt                40 bytes
+[DIR]      sub                 
+[FICHERO]  a.txt                20 bytes
+Total ficheros: 2 | Directorios: 1
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+
+### Directorio vacío (creado solo para la prueba)
+--- Ejecución de CP-FIC-01 (entradas tecleadas: [1] [datos/salidas/dir_vacio] [] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta a explorar: ===== EXPLORAR RUTA =====
+Ruta: datos/salidas/dir_vacio
+El directorio está vacío.
+Total ficheros: 0 | Directorios: 0
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+

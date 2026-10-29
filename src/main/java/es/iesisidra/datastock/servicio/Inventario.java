@@ -6,37 +6,40 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+// Comprobación git hub
+
 /**
  * Estado común del inventario durante la ejecución de UT1.
- * <p>Esta clase solo proporciona la colección compartida. No implementa
+ * <p>
+ * Esta clase solo proporciona la colección compartida. No implementa
  * importación, validación, búsqueda, exportación ni persistencia: esos son
- * ejercicios que deberá desarrollar el alumnado.</p>
+ * ejercicios que deberá desarrollar el alumnado.
+ * </p>
  */
 
-//Comprobación git hub
-
-
 public class Inventario {
-    private final List<Producto> productos = new ArrayList<>(); 
+    private final List<Producto> productos = new ArrayList<>();
 
     /**
      * Obtiene la colección que comparten las opciones del menú.
-     * <p>ATENCIÓN: la lista es modificable. El alumnado deberá aplicar las
-     * reglas del enunciado antes de añadir o sustituir elementos.</p>
+     * <p>
+     * ATENCIÓN: la lista es modificable. El alumnado deberá aplicar las
+     * reglas del enunciado antes de añadir o sustituir elementos.
+     * </p>
      */
-    public List<Producto> getProductos() { 
-        return productos; 
+    public List<Producto> getProductos() {
+        return productos;
     }
 
-    public boolean estaVacio(){
-        //Lista productos no contiene elementos
+    public boolean estaVacio() {
+        // Lista productos no contiene elementos
         return this.productos.isEmpty();
     }
 
-    public boolean existeCodigo(String codigo){
+    public boolean existeCodigo(String codigo) {
 
         boolean existe = false;
-        //Se comprueba si algún producto contiene ese código
+        // Se comprueba si algún producto contiene ese código
         if (codigo != null) {
             String codBueno = codigo.trim().toUpperCase();
             for (Producto p : productos) {
@@ -49,10 +52,6 @@ public class Inventario {
 
     }
 
-        /**
-     * Valida un producto según las reglas comunes del enunciado.
-     * @return lista de errores; si está vacía, el producto es válido.
-     */
     public List<String> validarProducto(Producto p) {
         List<String> errores = new ArrayList<>();
 
@@ -108,7 +107,7 @@ public class Inventario {
         return errores;
     }
 
-    public boolean agregarProducto(Producto p){
+    public boolean agregarProducto(Producto p) {
         boolean adjuntado = false;
 
         List<String> errores = validarProducto(p);
@@ -126,7 +125,13 @@ public class Inventario {
         return adjuntado;
     }
 
-//04
+    // 04
+
+    public List<Producto> ordenadosPorCodigo() {
+        List<Producto> copia = new ArrayList<>(this.productos);
+        copia.sort((a, b) -> a.getCodigo().compareToIgnoreCase(b.getCodigo()));
+        return copia;
+    }
 
     public String listarProductos() {
         String resultado = "";
@@ -134,29 +139,18 @@ public class Inventario {
         if (this.productos == null || this.productos.isEmpty()) {
             resultado = "No hay productos en el inventario.";
         } else {
-            
-            List<Producto> listaOrdenada = new ArrayList<>(this.productos);
 
-            for (int i = 0; i < listaOrdenada.size() - 1; i++) {
-                for (int j = 0; j < listaOrdenada.size() - i - 1; j++) {
-                    String cod1 = listaOrdenada.get(j).getCodigo();
-                    String cod2 = listaOrdenada.get(j + 1).getCodigo();
-                    
-                    if (cod1 != null && cod2 != null && cod1.compareToIgnoreCase(cod2) > 0) {
-                        Producto temp = listaOrdenada.get(j);
-                        listaOrdenada.set(j, listaOrdenada.get(j + 1));
-                        listaOrdenada.set(j + 1, temp);
-                    }
-                }
-            }
+            List<Producto> listaOrdenada = new ArrayList<>(this.productos);
 
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < listaOrdenada.size(); i++) {
                 Producto p = listaOrdenada.get(i);
                 sb.append("Código: ").append(p.getCodigo()).append("\n")
-                  .append("Nombre: ").append(p.getNombre()).append("\n")
-                  .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock()).append("\n")
-                  .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ").append(p.getProveedorId()).append("\n");
+                        .append("Nombre: ").append(p.getNombre()).append("\n")
+                        .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock())
+                        .append("\n")
+                        .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ")
+                        .append(p.getProveedorId()).append("\n");
 
                 if (i < listaOrdenada.size() - 1) {
                     sb.append("------------------------------\n");
@@ -190,10 +184,12 @@ public class Inventario {
             if (productoEncontrado != null) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Código: ").append(productoEncontrado.getCodigo()).append("\n")
-                  .append("Nombre: ").append(productoEncontrado.getNombre()).append("\n")
-                  .append("Precio: ").append(productoEncontrado.getPrecio()).append(" € | Stock: ").append(productoEncontrado.getStock()).append("\n")
-                  .append("Categoría: ").append(productoEncontrado.getCategoriaId()).append(" | Proveedor: ").append(productoEncontrado.getProveedorId());
-                
+                        .append("Nombre: ").append(productoEncontrado.getNombre()).append("\n")
+                        .append("Precio: ").append(productoEncontrado.getPrecio()).append(" € | Stock: ")
+                        .append(productoEncontrado.getStock()).append("\n")
+                        .append("Categoría: ").append(productoEncontrado.getCategoriaId()).append(" | Proveedor: ")
+                        .append(productoEncontrado.getProveedorId());
+
                 resultado = sb.toString();
             } else {
                 resultado = "No se encontró ningún producto con el código: " + codLimpio;
@@ -228,9 +224,11 @@ public class Inventario {
                 for (int i = 0; i < coincidencias.size(); i++) {
                     Producto p = coincidencias.get(i);
                     sb.append("Código: ").append(p.getCodigo()).append("\n")
-                      .append("Nombre: ").append(p.getNombre()).append("\n")
-                      .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock()).append("\n")
-                      .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ").append(p.getProveedorId()).append("\n");
+                            .append("Nombre: ").append(p.getNombre()).append("\n")
+                            .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock())
+                            .append("\n")
+                            .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ")
+                            .append(p.getProveedorId()).append("\n");
 
                     if (i < coincidencias.size() - 1) {
                         sb.append("------------------------------\n");
@@ -242,7 +240,5 @@ public class Inventario {
 
         return resultado;
     }
-
-
 
 }

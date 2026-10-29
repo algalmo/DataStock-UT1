@@ -1,0 +1,66 @@
+--- Ejecución de CP-RAF-01 (entradas tecleadas: [datos/salidas/stock.bin] [1] [1] [datos/pruebas/json_rf08_productos.json] [4] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Cargar productos desde: 1. JSON | 2. Inventario .dat | 0. Cancelar: Ruta del fichero: ===== IMPORTAR JSON =====
+Ruta: datos/pruebas/json_rf08_productos.json
+Productos encontrados: 4
+Importados: 4 | Rechazados: 0
+Importación finalizada con éxito.
+Fichero binario generado correctamente (4 registros).
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Registros: 4 | Tamaño: 144 bytes
+0: AUR-004 | 45.0 € | stock 15
+1: MON-003 | 149.99 € | stock 6
+2: RAT-002 | 14.5 € | stock 8
+3: TEC-001 | 19.95 € | stock 12
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+
+$ ls -l datos/salidas/stock.bin
+-rw-r--r-- 1 root root 144 Oct 29 21:37 datos/salidas/stock.bin
+
+### Generar otra vez con el fichero ya existente (se cancela la sobrescritura)
+--- Ejecución de CP-RAF-01 (entradas tecleadas: [datos/salidas/stock.bin] [1] [1] [datos/pruebas/json_rf08_productos.json] [N] [4] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Cargar productos desde: 1. JSON | 2. Inventario .dat | 0. Cancelar: Ruta del fichero: ===== IMPORTAR JSON =====
+Ruta: datos/pruebas/json_rf08_productos.json
+Productos encontrados: 4
+Importados: 4 | Rechazados: 0
+Importación finalizada con éxito.
+El fichero ya existe y se va a sobrescribir. ¿Continuar? (S/N): Operación cancelada. El fichero original no se ha modificado.
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Registros: 4 | Tamaño: 144 bytes
+0: AUR-004 | 45.0 € | stock 15
+1: MON-003 | 149.99 € | stock 6
+2: RAT-002 | 14.5 € | stock 8
+3: TEC-001 | 19.95 € | stock 12
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+
+### Inventario vacío: no se genera el fichero
+--- Ejecución de CP-RAF-01 (entradas tecleadas: [datos/salidas/otro.bin] [1] [1] [datos/pruebas/json_malformado.json] [0] )
+===== ACCESO ALEATORIO =====
+Fichero de stock (ej: datos/salidas/stock.bin): 
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: Cargar productos desde: 1. JSON | 2. Inventario .dat | 0. Cancelar: Ruta del fichero: ===== IMPORTAR JSON =====
+Ruta: datos/pruebas/json_malformado.json
+INCIDENCIAS:
+- No se pudo interpretar el fichero: java.io.EOFException: End of input at line 2 column 1 path $.productos[1]
+Importación cancelada: no se ha añadido ningún producto.
+El inventario está vacío. No se genera el fichero.
+
+1. Generar stock.bin | 2. Consultar registro | 3. Modificar stock | 4. Mostrar todos | 0. Salir
+Opción: 
+
+$ ls datos/salidas/otro.bin
+ls: cannot access 'datos/salidas/otro.bin': No such file or directory
+
+$ cp datos/salidas/stock.bin datos/salidas/stock_antes.bin
+

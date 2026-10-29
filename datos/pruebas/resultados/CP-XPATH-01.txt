@@ -1,0 +1,13 @@
+--- Ejecución de CP-XPATH-01 (entradas tecleadas: [datos/pruebas/xpath_catalogo.xml] [1] [MON-003] [1] [zzz-999] [0] )
+===== CONSULTAS XPATH =====
+Fichero XML: 
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Código: MON-003   Monitor 24 pulgadas   149.99 €
+Productos encontrados: 1
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Código: No se ha encontrado ningún producto.
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: 
+

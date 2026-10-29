@@ -1,0 +1,14 @@
+--- Ejecución de CP-XPATH-02 (entradas tecleadas: [datos/pruebas/xpath_catalogo.xml] [2] [1] [2] [9] [0] )
+===== CONSULTAS XPATH =====
+Fichero XML: 
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Categoría ID: TEC-001   Teclado USB   19.95 €
+RAT-002   Ratón inalámbrico   100.00 €
+Productos encontrados: 2
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: Categoría ID: No se ha encontrado ningún producto.
+
+1. Por código | 2. Por categoría | 3. Precio superior | 4. Contar | 0. Salir
+Opción: 
+

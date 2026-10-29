@@ -1,0 +1,34 @@
+--- Ejecución de CP-FIC-03 (entradas tecleadas: [1] [datos/pruebas/json_validos_3.json] [] [0] )
+
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Ruta a explorar: ===== EXPLORAR RUTA =====
+Ruta: datos/pruebas/json_validos_3.json
+[FICHERO]  json_validos_3.json  361 bytes
+Ruta absoluta: /tmp/claude-0/-home-claude/4c6ff48d-a418-50b4-a3cb-63f0458a8716/scratchpad/run/datos/pruebas/json_validos_3.json
+Total ficheros: 1 | Directorios: 0
+Pulsa Intro para continuar...
+================================================
+         DATASTOCK - GESTIÓN DE INVENTARIO
+                 FASE 1 - UT1
+================================================
+Productos en memoria: 0
+1. Explorar ficheros y directorios
+2. Importar productos desde JSON
+3. Importar productos desde XML
+4. Consultar productos
+5. Exportar productos
+6. Guardar y recuperar inventario
+0. Salir
+Selecciona una opción: Hasta pronto.
+

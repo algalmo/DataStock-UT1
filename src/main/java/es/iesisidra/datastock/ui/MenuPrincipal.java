@@ -40,7 +40,7 @@ public class MenuPrincipal {
             System.out.println("6. Guardar y recuperar inventario");
             System.out.println("7. Consultas XPath");
             System.out.println("0. Salir");
-            opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 6);
+            opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 8);
             switch (opcion) {
                 // Explorar ficheros y directorios
                 case 1 -> {
@@ -69,7 +69,7 @@ public class MenuPrincipal {
                 case 4 -> menuConsultas();
                 case 5 -> menuExportaciones();
                 case 6 -> menuSerializacion();
-                //case 7 ->
+                case 7 -> menuXPath();
                 case 0 -> System.out.println(ColoresConsola.pintar("Hasta pronto.", ColoresConsola.VERDE));
                 default -> System.out.println("Opción no válida.");
             }

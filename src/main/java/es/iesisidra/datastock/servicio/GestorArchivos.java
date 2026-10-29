@@ -3,15 +3,12 @@ package es.iesisidra.datastock.servicio;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
-import java.util.ArrayList;
 import java.util.List;
 import es.iesisidra.datastock.modelo.Producto;
 import javax.xml.parsers.DocumentBuilder;
@@ -28,13 +25,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
 import org.w3c.dom.Element;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-
 
 public class GestorArchivos {
 
@@ -102,87 +98,112 @@ public class GestorArchivos {
     }
 
     // 02
+        // 02
     public String importarJSON(String rutaArchivo, Inventario inventario) {
-        String resultado = " ";
+        String resultado = "";
 
         if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
-            resultado = "La ruta del archivo JSON no es válida. ";
+            resultado = "La ruta del archivo JSON no es válida.";
         } else {
             Path ruta = Path.of(rutaArchivo.trim());
 
-            if (!Files.exists(ruta) || !Files.isRegularFile(ruta)) {
-                resultado = "Error: El archivo JSON especificado no existe o no es un fichero válido";
+            // Debe existir, ser un fichero normal (no directorio) y poder leerse
+            if (!Files.isRegularFile(ruta) || !Files.isReadable(ruta)) {
+                resultado = "Error: El archivo JSON no existe, no es un fichero o no se puede leer.";
             } else {
                 int encontrados = 0;
                 int importados = 0;
                 int rechazados = 0;
-
+                boolean documentoRechazado = false;
                 StringBuilder problemas = new StringBuilder();
 
                 try (BufferedReader br = Files.newBufferedReader(ruta)) {
                     Gson gson = new Gson();
-                    JsonElement elemento = JsonParser.parseReader(br);
-                    List<Producto> listaLeida = new ArrayList<>();
-                    Type tipoLista = new TypeToken<ArrayList<Producto>>() {}.getType();
 
-                    if (elemento.isJsonArray()) {
-                        listaLeida = gson.fromJson(elemento, tipoLista);
-                    } else if (elemento.isJsonObject()) {
-                        JsonObject obj = elemento.getAsJsonObject();
-                        if (obj.has("productos")) {
-                            listaLeida = gson.fromJson(obj.getAsJsonArray("productos"), tipoLista);
-                        } else if (obj.has("catalogo")) {
-                            listaLeida = gson.fromJson(obj.getAsJsonArray("catalogo"), tipoLista);
+                    // Si el JSON está mal formado, aquí salta la excepción y no se toca el inventario
+                    JsonElement raiz = JsonParser.parseReader(br);
+
+                    // Localizamos el array "productos" comprobando cada nivel
+                    JsonArray array = null;
+                    if (raiz.isJsonObject()) {
+                        JsonElement nodo = raiz.getAsJsonObject().get("productos");
+                        if (nodo != null && nodo.isJsonArray()) {
+                            array = nodo.getAsJsonArray();
                         }
                     }
 
-                    if (listaLeida != null) {
-                        encontrados = listaLeida.size();
+                    if (array == null) {
+                        // Raíz incorrecta o array ausente: se rechaza el documento completo
+                        documentoRechazado = true;
+                        problemas.append("- Estructura incorrecta: se esperaba un objeto con el array 'productos'.\n");
+                    } else {
+                        encontrados = array.size();
+                        int posicion = 0;
 
-                        for (Producto p : listaLeida) {
-                            List<String> errores = inventario.validarProducto(p);
+                        for (JsonElement elem : array) {
+                            posicion++;
 
-                            if (errores.isEmpty()) {
-                                boolean adjuntado = inventario.agregarProducto(p);
-                                if (adjuntado) {
-                                    importados++;
-                                } else {
+                            // try/catch DENTRO del bucle: un producto roto no detiene a los demás
+                            try {
+                                Producto p = gson.fromJson(elem, Producto.class);
+                                List<String> errores = inventario.validarProducto(p);
+
+                                // Gson deja stock en 0 si falta, así que lo comprobamos a mano
+                                if (elem.isJsonObject() && !elem.getAsJsonObject().has("stock")) {
+                                    errores.add("El stock es obligatorio.");
+                                }
+
+                                // Identificador para mostrar en las incidencias
+                                String etiqueta = "Producto " + posicion;
+                                if (p != null && p.getCodigo() != null && !p.getCodigo().trim().isEmpty()) {
+                                    etiqueta = p.getCodigo().trim();
+                                }
+
+                                if (!errores.isEmpty()) {
                                     rechazados++;
-                                    problemas.append("-Producto con código ").append(p.getCodigo())
-                                            .append(" :Código duplicado en el inventario. \n");
-
+                                    problemas.append("- ").append(etiqueta).append(": ")
+                                            .append(String.join(" ", errores)).append("\n");
+                                } else if (inventario.existeCodigo(p.getCodigo())) {
+                                    // Ya estaba en memoria o repetido dentro del mismo fichero
+                                    rechazados++;
+                                    problemas.append("- ").append(etiqueta)
+                                            .append(": código duplicado, se conserva el existente.\n");
+                                } else {
+                                    inventario.agregarProducto(p);
+                                    importados++;
                                 }
-                            } else {
+                            } catch (JsonParseException e) {
+                                // Por ejemplo "precio":"abc" o "stock":1.5
                                 rechazados++;
-                                String codProducto = "Desconocido";
-                                if (p != null && p.getCodigo() != null) {
-                                    codProducto = p.getCodigo();
-                                }
-
-                                problemas.append("Producto con codigo").append(codProducto).append(" : ")
-                                        .append(String.join(", ", errores)).append("\n");
+                                problemas.append("- Producto ").append(posicion)
+                                        .append(": tipos de datos inválidos (precio, stock o IDs no numéricos).\n");
                             }
-
                         }
                     }
-
-                } catch (IOException e) {
-                    problemas.append("Error de lectura E/S: ").append(e.getMessage()).append("\n");
-                } catch (Exception e) {
-                    problemas.append("Error de formato JSON: ").append(e.getMessage()).append("\n");
+                } catch (IOException | JsonParseException e) {
+                    // JSON mal formado o error de lectura: no se importa nada
+                    documentoRechazado = true;
+                    problemas.append("- No se pudo interpretar el fichero: ").append(e.getMessage()).append("\n");
                 }
+
                 StringBuilder resumen = new StringBuilder();
                 resumen.append("===== IMPORTAR JSON =====\n");
                 resumen.append("Ruta: ").append(rutaArchivo).append("\n");
-                resumen.append("Productos encontrados: ").append(encontrados).append("\n");
-                resumen.append("Importados: ").append(importados).append(" | Rechazados: ").append(rechazados)
-                        .append("\n");
 
-                if (rechazados > 0 || problemas.length() > 0) {
+                if (documentoRechazado) {
                     resumen.append("INCIDENCIAS:\n").append(problemas);
-                    resumen.append("Importación finalizada con incidencias.");
+                    resumen.append("Importación cancelada: no se ha añadido ningún producto.");
                 } else {
-                    resumen.append("Importación finalizada con éxito.");
+                    resumen.append("Productos encontrados: ").append(encontrados).append("\n");
+                    resumen.append("Importados: ").append(importados)
+                            .append(" | Rechazados: ").append(rechazados).append("\n");
+
+                    if (rechazados > 0) {
+                        resumen.append("INCIDENCIAS:\n").append(problemas);
+                        resumen.append("Importación finalizada con incidencias.");
+                    } else {
+                        resumen.append("Importación finalizada con éxito.");
+                    }
                 }
 
                 resultado = resumen.toString();
@@ -191,7 +212,6 @@ public class GestorArchivos {
 
         return resultado;
     }
-
     // 03
     public String importarXML(String rutaArchivo, Inventario inventario) {
         String resultado = "";
@@ -243,9 +263,11 @@ public class GestorArchivos {
                                     precioTexto = hijo.getTextContent();
                                 } else if (nombreEtiqueta.equals("stock")) {
                                     stockTexto = hijo.getTextContent();
-                                } else if (nombreEtiqueta.equals("idCategoria") || nombreEtiqueta.equals("categoriaId")) {
+                                } else if (nombreEtiqueta.equals("idCategoria")
+                                        || nombreEtiqueta.equals("categoriaId")) {
                                     idCategoriaTexto = hijo.getTextContent();
-                                } else if (nombreEtiqueta.equals("idProveedor") || nombreEtiqueta.equals("proveedorId")) {
+                                } else if (nombreEtiqueta.equals("idProveedor")
+                                        || nombreEtiqueta.equals("proveedorId")) {
                                     idProveedorTexto = hijo.getTextContent();
                                 }
                             }
@@ -328,7 +350,8 @@ public class GestorArchivos {
                 resumen.append("===== IMPORTAR XML =====\n");
                 resumen.append("Ruta: ").append(rutaArchivo).append("\n");
                 resumen.append("Leyendo documento XML...\n");
-                resumen.append("Encontrados: ").append(encontrados).append(" | Importados: ").append(importados).append(" | Rechazados: ").append(rechazados).append("\n");
+                resumen.append("Encontrados: ").append(encontrados).append(" | Importados: ").append(importados)
+                        .append(" | Rechazados: ").append(rechazados).append("\n");
 
                 if (rechazados > 0 || problemas.length() > 0) {
                     resumen.append("INCIDENCIAS:\n").append(problemas);
@@ -344,7 +367,7 @@ public class GestorArchivos {
         return resultado;
     }
 
-    //05
+    // 05
     public String exportarJSON(String rutaArchivo, Inventario inventario) {
         String resultado = "";
 
@@ -374,8 +397,7 @@ public class GestorArchivos {
         return resultado;
     }
 
-    
-    public String exportarXML(String rutaArchivo, Inventario inventario) {
+public String exportarXML(String rutaArchivo, Inventario inventario) {
         String resultado = "";
 
         if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
@@ -392,7 +414,7 @@ public class GestorArchivos {
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 Document doc = builder.newDocument();
 
-                Element root = doc.createElement("productos");
+                Element root = doc.createElement("catalogo");
                 doc.appendChild(root);
 
                 for (int i = 0; i < lista.size(); i++) {
@@ -409,12 +431,20 @@ public class GestorArchivos {
                     prodElem.appendChild(nomElem);
 
                     Element precElem = doc.createElement("precio");
-                    precElem.setTextContent((p.getPrecio() != null) ? p.getPrecio().toString() : "");
+                    precElem.setTextContent((p.getPrecio() != null) ? p.getPrecio().toString() : "0.00");
                     prodElem.appendChild(precElem);
 
                     Element stockElem = doc.createElement("stock");
                     stockElem.setTextContent(String.valueOf(p.getStock()));
                     prodElem.appendChild(stockElem);
+
+                    Element catElem = doc.createElement("categoriaId");
+                    catElem.setTextContent(String.valueOf(p.getCategoriaId()));
+                    prodElem.appendChild(catElem);
+
+                    Element provElem = doc.createElement("proveedorId");
+                    provElem.setTextContent(String.valueOf(p.getProveedorId()));
+                    prodElem.appendChild(provElem);
 
                     root.appendChild(prodElem);
                 }
@@ -441,8 +471,8 @@ public class GestorArchivos {
         return resultado;
     }
 
-    //06
-     
+    // 06
+
     public String guardarInventarioDAT(String rutaArchivo, Inventario inventario) {
         String resultado = "";
 
@@ -455,7 +485,8 @@ public class GestorArchivos {
 
             try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(ruta))) {
                 oos.writeObject(inventario.getProductos());
-                resultado = "Inventario guardado correctamente.\nProductos guardados: " + inventario.getProductos().size();
+                resultado = "Inventario guardado correctamente.\nProductos guardados: "
+                        + inventario.getProductos().size();
             } catch (IOException e) {
                 resultado = "Error al guardar el inventario: " + e.getMessage();
             }
@@ -481,7 +512,8 @@ public class GestorArchivos {
                     inventario.getProductos().clear();
                     inventario.getProductos().addAll(productosCargados);
 
-                    resultado = "Inventario recuperado correctamente.\nProductos disponibles: " + inventario.getProductos().size();
+                    resultado = "Inventario recuperado correctamente.\nProductos disponibles: "
+                            + inventario.getProductos().size();
                 } catch (ClassNotFoundException | ClassCastException e) {
                     resultado = "Error: Fichero corrupto o incompatible.";
                 } catch (IOException e) {
@@ -493,8 +525,8 @@ public class GestorArchivos {
         return resultado;
     }
 
-    //07
-     
+    // 07
+
     public String consultarXPath(String rutaArchivo, int opcion, String parametro) {
         String resultado = "";
 
@@ -517,10 +549,10 @@ public class GestorArchivos {
                     StringBuilder sb = new StringBuilder();
 
                     switch (opcion) {
-                        case 1 -> { 
+                        case 1 -> {
                             String expresion = "/catalogo/producto[codigo='" + parametro + "']";
                             NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
-                            
+
                             int contador = 0;
                             for (int i = 0; i < nodos.getLength(); i++) {
                                 Element elem = (Element) nodos.item(i);
@@ -535,7 +567,7 @@ public class GestorArchivos {
                         case 2 -> { // Por categoría
                             String expresion = "/catalogo/producto[categoriaId='" + parametro + "']";
                             NodeList nodos = (NodeList) xpath.evaluate(expresion, doc, XPathConstants.NODESET);
-                            
+
                             int contador = 0;
                             for (int i = 0; i < nodos.getLength(); i++) {
                                 Element elem = (Element) nodos.item(i);

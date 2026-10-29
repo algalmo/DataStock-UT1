@@ -128,6 +128,123 @@ public class Inventario {
         return adjuntado;
     }
 
+//04
+
+    public String listarProductos() {
+        String resultado = "";
+
+        if (this.productos == null || this.productos.isEmpty()) {
+            resultado = "No hay productos en el inventario.";
+        } else {
+            // Creamos una lista auxiliar para no modificar la lista original
+            List<Producto> listaOrdenada = new ArrayList<>(this.productos);
+
+            // Ordenamos por código usando ordenación tradicional (Bubble Sort)
+            for (int i = 0; i < listaOrdenada.size() - 1; i++) {
+                for (int j = 0; j < listaOrdenada.size() - i - 1; j++) {
+                    String cod1 = listaOrdenada.get(j).getCodigo();
+                    String cod2 = listaOrdenada.get(j + 1).getCodigo();
+                    
+                    if (cod1 != null && cod2 != null && cod1.compareToIgnoreCase(cod2) > 0) {
+                        Producto temp = listaOrdenada.get(j);
+                        listaOrdenada.set(j, listaOrdenada.get(j + 1));
+                        listaOrdenada.set(j + 1, temp);
+                    }
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < listaOrdenada.size(); i++) {
+                Producto p = listaOrdenada.get(i);
+                sb.append("Código: ").append(p.getCodigo()).append("\n")
+                  .append("Nombre: ").append(p.getNombre()).append("\n")
+                  .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock()).append("\n")
+                  .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ").append(p.getProveedorId()).append("\n");
+
+                if (i < listaOrdenada.size() - 1) {
+                    sb.append("------------------------------\n");
+                }
+            }
+
+            resultado = sb.toString();
+        }
+
+        return resultado;
+    }
+
+    public String buscarPorCodigo(String codigoBuscar) {
+        String resultado = "";
+
+        if (codigoBuscar == null || codigoBuscar.trim().isEmpty()) {
+            resultado = "El código introducido no es válido.";
+        } else if (this.productos == null || this.productos.isEmpty()) {
+            resultado = "No hay productos en el inventario.";
+        } else {
+            String codLimpio = codigoBuscar.trim();
+            Producto productoEncontrado = null;
+
+            for (int i = 0; i < this.productos.size(); i++) {
+                Producto p = this.productos.get(i);
+                if (p.getCodigo() != null && p.getCodigo().trim().equalsIgnoreCase(codLimpio)) {
+                    productoEncontrado = p;
+                }
+            }
+
+            if (productoEncontrado != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Código: ").append(productoEncontrado.getCodigo()).append("\n")
+                  .append("Nombre: ").append(productoEncontrado.getNombre()).append("\n")
+                  .append("Precio: ").append(productoEncontrado.getPrecio()).append(" € | Stock: ").append(productoEncontrado.getStock()).append("\n")
+                  .append("Categoría: ").append(productoEncontrado.getCategoriaId()).append(" | Proveedor: ").append(productoEncontrado.getProveedorId());
+                
+                resultado = sb.toString();
+            } else {
+                resultado = "No se encontró ningún producto con el código: " + codLimpio;
+            }
+        }
+
+        return resultado;
+    }
+
+    public String buscarPorNombre(String fragmentoNombre) {
+        String resultado = "";
+
+        if (fragmentoNombre == null || fragmentoNombre.trim().isEmpty()) {
+            resultado = "El texto de búsqueda no es válido.";
+        } else if (this.productos == null || this.productos.isEmpty()) {
+            resultado = "No hay productos en el inventario.";
+        } else {
+            String textoLimpio = fragmentoNombre.trim().toLowerCase();
+            List<Producto> coincidencias = new ArrayList<>();
+
+            for (int i = 0; i < this.productos.size(); i++) {
+                Producto p = this.productos.get(i);
+                if (p.getNombre() != null && p.getNombre().toLowerCase().contains(textoLimpio)) {
+                    coincidencias.add(p);
+                }
+            }
+
+            if (coincidencias.isEmpty()) {
+                resultado = "No se encontraron productos que contengan: '" + fragmentoNombre.trim() + "'";
+            } else {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < coincidencias.size(); i++) {
+                    Producto p = coincidencias.get(i);
+                    sb.append("Código: ").append(p.getCodigo()).append("\n")
+                      .append("Nombre: ").append(p.getNombre()).append("\n")
+                      .append("Precio: ").append(p.getPrecio()).append(" € | Stock: ").append(p.getStock()).append("\n")
+                      .append("Categoría: ").append(p.getCategoriaId()).append(" | Proveedor: ").append(p.getProveedorId()).append("\n");
+
+                    if (i < coincidencias.size() - 1) {
+                        sb.append("------------------------------\n");
+                    }
+                }
+                resultado = sb.toString();
+            }
+        }
+
+        return resultado;
+    }
 
 
 

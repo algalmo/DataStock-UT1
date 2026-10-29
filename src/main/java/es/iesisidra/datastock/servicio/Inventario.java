@@ -60,7 +60,6 @@ public class Inventario {
             errores.add("El producto es nulo.");
         } else {
 
-            // CÓDIGO: obligatorio, máximo 12 caracteres y patrón [A-Z0-9-]+
             String codCorrecto = p.getCodigo();
             if (codCorrecto == null || codCorrecto.trim().isEmpty()) {
                 errores.add("El código es obligatorio.");
@@ -76,37 +75,31 @@ public class Inventario {
                 }
             }
 
-            // NOMBRE: obligatorio, entre 3 y 100 caracteres
             String nombreCorrecto = p.getNombre();
             if (nombreCorrecto == null || nombreCorrecto.trim().isEmpty()) {
                 errores.add("El nombre es obligatorio.");
             } else {
                 nombreCorrecto = nombreCorrecto.trim();
 
-                // Error si es MENOR que 3 O MAYOR que 100 (antes estaba al revés)
                 if (nombreCorrecto.length() < 3 || nombreCorrecto.length() > 100) {
                     errores.add("El nombre debe tener entre 3 y 100 caracteres.");
                 }
             }
 
-            // PRECIO: obligatorio y mayor que 0
             if (p.getPrecio() == null) {
                 errores.add("El precio es obligatorio.");
             } else if (p.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
                 errores.add("El precio debe ser mayor que 0.");
             }
 
-            // STOCK: entero mayor o igual que 0
             if (p.getStock() < 0) {
                 errores.add("El stock debe ser mayor o igual que 0.");
             }
 
-            // CATEGORÍA: entero positivo (en UT1 no se comprueba que exista)
             if (p.getCategoriaId() <= 0) {
                 errores.add("El ID de la categoría debe ser un entero positivo.");
             }
 
-            // PROVEEDOR: entero positivo (en UT1 no se comprueba que exista)
             if (p.getProveedorId() <= 0) {
                 errores.add("El ID del proveedor debe ser un entero positivo.");
             }

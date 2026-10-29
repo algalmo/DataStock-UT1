@@ -5,8 +5,17 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.BufferedReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import es.iesisidra.datastock.modelo.Producto;
 
 public class GestorArchivos {
+
+    //01
     public String explorarRuta(String rutaTexto) {
 
         String resultado = " ";
@@ -61,6 +70,77 @@ public class GestorArchivos {
             }
         }
 
+        return resultado;
+    }
+
+
+    //02
+    public String importarJSON(String rutaArchivo, Inventario inventario){
+        String resultado = " ";
+
+        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
+            resultado = "La ruta del archivo JSON no es válida. ";
+        }else{
+            Path ruta =Path.of(rutaArchivo.trim());
+
+            if (!Files.exists(ruta) || !Files.isRegularFile(ruta)) {
+                resultado = "Error: El archivo JSON especificado no existe o no es un fichero válido";
+            }else{
+                int encontrados = 0;
+                int importados = 0;
+                int rechazados = 0;
+
+                StringBuilder problemas = new StringBuilder();
+
+                try (BufferedReader br = Files.newBufferedReader(ruta)){
+                    Gson gson = new Gson();
+                    List<Producto> listaLeida = gson.fromJson(br, new TypeToken<ArrayList<Producto>>(){}.getType());
+                    
+                    if (listaLeida != null) {
+                        encontrados = listaLeida.size();
+
+                        for (Producto p : listaLeida) {
+                            List<String> errores = inventario.validarProducto(p);
+
+                            if (errores.isEmpty()) {
+                                boolean adjuntado = inventario.agregarProducto(p);
+                                if (adjuntado) {
+                                    importados++;
+                                }else{
+                                    rechazados++;
+                                    problemas.append("-Producto con código ").append(p.getCodigo()).append(" :Código duplicado en el inventario. \n");
+
+                                }
+                            }else{
+                                rechazados++;
+                                String codProducto = "Desconocido";
+                                if (p != null && p.getCodigo() != null) {
+                                    codProducto = p.getCodigo();
+                                }
+
+                                problemas.append("Producto con codigo").append(codProducto).append(" : ").append(String.join(", ", errores)).append("\n");
+                            }
+
+                        }
+                    }
+                
+                } catch (IOException e) {
+                    problemas.append("Error de lectura E/S: ").append(e.getMessage()).append("\n");
+                }catch (Exception e) {
+                    problemas.append("Error de formato JSON: ").append(e.getMessage()).append("\n");
+                }
+                StringBuilder resumen = new StringBuilder();
+                resumen.append("--- RESUMEN DE IMPORTACIÓN JSON ---\n");
+                resumen.append("Encontrados: ").append(encontrados).append("\n");
+                resumen.append("Importados:  ").append(importados).append("\n");
+                resumen.append("Rechazados:  ").append(rechazados).append("\n");
+                if (rechazados > 0 || problemas.length() > 0) {
+                    resumen.append("\nMotivos de rechazo y problemas:\n").append(problemas);
+                }
+
+                resultado = resumen.toString();
+            }
+        }
         return resultado;
     }
 }

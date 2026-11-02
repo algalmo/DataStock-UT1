@@ -30,7 +30,8 @@ public final class AccesoAleatorioActividad {
         String ruta = LectorConsola.leerTexto("Fichero de stock (ej: datos/salidas/stock.bin): ");
         if (ruta.trim().isEmpty()) {
             System.out.println("Error: La ruta no es válida.");
-            return;
+        } else {
+            System.out.println("Ruta válida. Procesando...");
         }
         File archivo = new File(ruta.trim());
 
@@ -58,29 +59,40 @@ public final class AccesoAleatorioActividad {
 
         int origen = LectorConsola.leerOpcion("Cargar productos desde: 1. JSON | 2. Inventario .dat | 0. Cancelar: ", 0,
                 2);
+        boolean continuar = true;
+
         if (origen == 0) {
-            return;
-        }
-        String rutaOrigen = LectorConsola.leerTexto("Ruta del fichero: ");
-        if (origen == 1) {
-            System.out.println(gestor.importarJSON(rutaOrigen, inventario));
-        } else {
-            System.out.println(gestor.recuperarInventarioDAT(rutaOrigen, inventario));
+            continuar = false;
         }
 
-        if (inventario.estaVacio()) {
-            System.out.println("El inventario está vacío. No se genera el fichero.");
-            return;
+        if (continuar) {
+            String rutaOrigen = LectorConsola.leerTexto("Ruta del fichero: ");
+            if (origen == 1) {
+                System.out.println(gestor.importarJSON(rutaOrigen, inventario));
+            } else {
+                System.out.println(gestor.recuperarInventarioDAT(rutaOrigen, inventario));
+            }
+
+            if (inventario.estaVacio()) {
+                System.out.println("El inventario está vacío. No se genera el fichero.");
+                continuar = false;
+            }
         }
 
-        File carpeta = archivo.getAbsoluteFile().getParentFile();
-        if (archivo.isDirectory() || carpeta == null || !carpeta.isDirectory()) {
-            System.out.println("Error: El directorio de destino no existe o la ruta es un directorio.");
-            return;
+        if (continuar) {
+            File carpeta = archivo.getAbsoluteFile().getParentFile();
+            if (archivo.isDirectory() || carpeta == null || !carpeta.isDirectory()) {
+                System.out.println("Error: El directorio de destino no existe o la ruta es un directorio.");
+                continuar = false;
+            }
         }
-        if (archivo.exists() && !LectorConsola.confirmar("El fichero ya existe y se va a sobrescribir. ¿Continuar?")) {
-            System.out.println("Operación cancelada. El fichero original no se ha modificado.");
-            return;
+
+        if (continuar) {
+            if (archivo.exists()
+                    && !LectorConsola.confirmar("El fichero ya existe y se va a sobrescribir. ¿Continuar?")) {
+                System.out.println("Operación cancelada. El fichero original no se ha modificado.");
+                continuar = false;
+            }
         }
 
         List<Producto> lista = inventario.ordenadosPorCodigo();
@@ -111,14 +123,19 @@ public final class AccesoAleatorioActividad {
 
     private static void consultar(File archivo) {
         long total = comprobarFichero(archivo);
+        boolean continuar = true;
+
         if (total < 0) {
-            return;
+            continuar = false;
         }
 
-        int pos = LectorConsola.leerEntero("Consultar posición (0-" + (total - 1) + "): ");
-        if (pos < 0 || pos >= total) {
-            System.out.println("Error: Posición fuera de rango.");
-            return;
+        int pos = 0;
+        if (continuar) {
+            pos = LectorConsola.leerEntero("Consultar posición (0-" + (total - 1) + "): ");
+            if (pos < 0 || pos >= total) {
+                System.out.println("Error: Posición fuera de rango.");
+                continuar = false;
+            }
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
@@ -131,14 +148,19 @@ public final class AccesoAleatorioActividad {
 
     private static void modificarStock(File archivo) {
         long total = comprobarFichero(archivo);
+        boolean continuar = true;
+
         if (total < 0) {
-            return;
+            continuar = false;
         }
 
-        int pos = LectorConsola.leerEntero("Posición a modificar (0-" + (total - 1) + "): ");
-        if (pos < 0 || pos >= total) {
-            System.out.println("Error: Posición fuera de rango.");
-            return;
+        int pos = 0;
+        if (continuar) {
+            pos = LectorConsola.leerEntero("Posición a modificar (0-" + (total - 1) + "): ");
+            if (pos < 0 || pos >= total) {
+                System.out.println("Error: Posición fuera de rango.");
+                continuar = false;
+            }
         }
 
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "rw")) {
@@ -149,9 +171,10 @@ public final class AccesoAleatorioActividad {
             int stockActual = raf.readInt();
 
             int nuevoStock = LectorConsola.leerEntero("Nuevo stock: ");
+
             if (nuevoStock < 0) {
                 System.out.println("Error: El stock no puede ser negativo.");
-                return;
+                continuar = false;
             }
 
             raf.seek((long) pos * TAMANO_REGISTRO + DESPLAZAMIENTO_STOCK);
@@ -163,11 +186,14 @@ public final class AccesoAleatorioActividad {
     }
 
     private static void mostrarTodos(File archivo) {
-        long total = comprobarFichero(archivo);
-        if (total < 0) {
-            return;
-        }
+    long total = comprobarFichero(archivo);
+    boolean continuar = true;
 
+    if (total < 0) {
+        continuar = false;
+    }
+
+    if (continuar) {
         try (RandomAccessFile raf = new RandomAccessFile(archivo, "r")) {
             for (int i = 0; i < total; i++) {
                 System.out.println(i + ": " + leerRegistro(raf));
@@ -176,6 +202,7 @@ public final class AccesoAleatorioActividad {
             System.out.println("Error al leer el fichero: " + e.getMessage());
         }
     }
+}
 
     private static String leerRegistro(RandomAccessFile raf) throws IOException {
         StringBuilder codigo = new StringBuilder();

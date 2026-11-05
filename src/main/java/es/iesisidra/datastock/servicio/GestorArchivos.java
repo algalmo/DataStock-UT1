@@ -119,6 +119,7 @@ public class GestorArchivos {
                         tamano = 0;
                     }
                     sb.append(String.format("%-10s %-20s %d bytes\n", "[FICHERO]", ruta.getFileName(), tamano));
+                    sb.append("Ruta absoluta: ").append(ruta.toAbsolutePath().normalize()).append("\n");
                     sb.append("Total ficheros: 1 | Directorios: 0");
                 }
 

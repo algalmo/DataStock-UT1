@@ -27,7 +27,7 @@ public final class AccesoAleatorioActividad {
 
     public static void main(String[] args) {
         System.out.println("===== ACCESO ALEATORIO =====");
-        String ruta = LectorConsola.leerTexto("Fichero de stock (ej: datos/salidas/stock.bin): ");
+        String ruta = LectorConsola.leerTexto("Fichero de stock: ");
         if (ruta.trim().isEmpty()) {
             System.out.println("Error: La ruta no es válida.");
         } else {

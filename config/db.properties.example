@@ -1,3 +1,3 @@
 jdbc.url=jdbc:mysql://localhost:3306/datastock
 jdbc.user=datastock
-jdbc.password=404303
+jdbc.password=ficticia

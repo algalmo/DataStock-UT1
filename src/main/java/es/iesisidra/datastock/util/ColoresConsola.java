@@ -1,5 +1,6 @@
 package es.iesisidra.datastock.util;
 
+
 /**
  * Códigos ANSI para personalizar la salida por consola.
  * <p>Se desactivan con la variable de entorno {@code NO_COLOR} o con la
@@ -7,6 +8,7 @@ package es.iesisidra.datastock.util;
  * admiten ANSI puede aparecer texto sin formato o secuencias de escape.</p>
  */
 public final class ColoresConsola {
+
     private ColoresConsola() { }
     public static final String RESET = "\u001B[0m";
     public static final String NEGRITA = "\u001B[1m";
@@ -26,4 +28,21 @@ public final class ColoresConsola {
     public static String pintar(String texto, String color) {
         return habilitados() ? color + texto + RESET : texto;
     }
+
+    //IMPRIMIR OK, ERROR Y AVISO CON COLORES CORRESPONDIENTES
+
+    public static void ok(String mensaje){
+        System.out.println(pintar("[OK] " + mensaje, VERDE));
+    }
+
+    public static void error(String mensaje){
+        System.out.println(pintar("[ERROR]" + mensaje, ROJO));
+    }
+
+    public static void aviso(String mensaje){
+        System.out.println((pintar("[AVISO]" + mensaje, AMARILLO)));
+    }
+
+
+
 }

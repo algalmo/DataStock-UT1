@@ -1,5 +1,6 @@
 package es.iesisidra.datastock.util;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 /**
@@ -83,5 +84,62 @@ public final class LectorConsola {
         }
 
         return valor;
+    }
+
+    // Lectura de BigDecimal
+    public static BigDecimal leerBigDecimal(String mensaje) {
+
+        BigDecimal numero = null;
+        boolean valido = false;
+
+        while (!valido) {
+            try {
+                System.out.println(mensaje);
+                String entrada = TECLADO.nextLine();
+
+                if (entrada == null) {
+                    ColoresConsola.error("No se ha podido leer la entrada");
+                } else {
+                    entrada = entrada.trim();
+
+                    if (entrada.equalsIgnoreCase("CANCELAR")) {
+                        throw new IllegalArgumentException("CANCELAR");
+                    }
+
+                    if (entrada.isEmpty()) {
+                        ColoresConsola.error("El valor no puede estar vacío");
+                    } else {
+                        // En caso de que pase las validaciones, intentamos cambiarlo
+                        numero = new BigDecimal(entrada);
+                        valido = true;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                ColoresConsola.error("Formato numérico incorrecto. Usa un punto para los decimales");
+            }
+        }
+        return numero;
+    }
+
+    public static String leerTextoOpcional(String mensaje) {
+        String resultado = "";
+        boolean valido = false;
+
+        while (!valido) {
+            System.out.println(mensaje);
+
+            if (TECLADO.hasNextLine()) {
+                String entrada = TECLADO.nextLine().trim();
+                
+                if (entrada.equalsIgnoreCase("CANCELAR")) {
+                    throw new IllegalArgumentException("CANCELAR");
+                }
+
+                resultado = entrada;
+                valido = true;
+            }
+        }
+
+        return resultado;
     }
 }

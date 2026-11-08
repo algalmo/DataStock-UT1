@@ -18,6 +18,9 @@ import java.util.Properties;
  * <p>Cada llamada devuelve una conexión NUEVA que quien la pide debe cerrar
  * (con try-with-resources). No se guarda ninguna conexión abierta.</p>
  */
+
+//UT2
+
 public final class ConexionBD {
 
     private static final String FICHERO_CONFIG = "config/db.properties";

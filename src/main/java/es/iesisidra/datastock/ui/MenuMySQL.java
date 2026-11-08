@@ -9,14 +9,14 @@ import es.iesisidra.datastock.util.LectorConsola;
 public class MenuMySQL {
     private final Inventario inventario;
 
-    public MenuMySQL(Inventario inventario){
+    public MenuMySQL(Inventario inventario) {
         this.inventario = inventario;
     }
 
-    public void iniciar(){
+    public void iniciar() {
         int opcion;
 
-        do{
+        do {
             System.out.println("\n==========================");
             System.out.println("    GESTIÓN MYSQL (UT2)     ");
             System.out.println("============================");
@@ -33,63 +33,65 @@ public class MenuMySQL {
             System.out.println("0. Volver al menú principal");
 
             opcion = LectorConsola.leerOpcion("Selecciona una opción: ", 0, 9);
-            
+
             switch (opcion) {
                 case 1:
                     try {
-        InfoBaseDatos info = ConexionDAO.obtenerInfoConexion();
-        
-        System.out.println(ColoresConsola.pintar("[OK] Conexión establecida correctamente.", ColoresConsola.VERDE));
-        System.out.println("- Base de datos: " + info.getNombreBaseDatos());
-        System.out.println("- Gestor: " + info.getNombreGestor() + " (Versión: " + info.getVersionGestor() + ")");
-        System.out.println("- Total de productos en la tabla: " + info.getTotalProductos());
+                        InfoBaseDatos info = ConexionDAO.obtenerInfoConexion();
 
-    } catch (RuntimeException e) {
-        System.out.println(ColoresConsola.pintar("[ERROR] " + e.getMessage(), ColoresConsola.ROJO));
-    }
+                        System.out.println(ColoresConsola.pintar("[OK] Conexión establecida correctamente.",
+                                ColoresConsola.VERDE));
+                        System.out.println("- Base de datos: " + info.getNombreBaseDatos());
+                        System.out.println(
+                                "- Gestor: " + info.getNombreGestor() + " (Versión: " + info.getVersionGestor() + ")");
+                        System.out.println("- Total de productos en la tabla: " + info.getTotalProductos());
+
+                    } catch (RuntimeException e) {
+                        System.out.println(ColoresConsola.pintar("[ERROR] " + e.getMessage(), ColoresConsola.ROJO));
+                    }
                     break;
 
                 case 2:
-                    
+                    MenuCategorias.iniciar();
                     break;
 
                 case 3:
-                    
+
                     break;
 
                 case 4:
-                    
+
                     break;
 
                 case 5:
-                    
+
                     break;
 
                 case 6:
-                    
+
                     break;
 
                 case 7:
-                    
+
                     break;
 
                 case 8:
-                    
+
                     break;
 
                 case 9:
-                    
+
                     break;
 
                 case 0:
-                    
+
                     break;
-            
+
                 default:
                     ColoresConsola.error("Opción no válida. Introduce un número entre 0 y 9");
                     break;
             }
-        
-        }while (opcion != 0);
+
+        } while (opcion != 0);
     }
 }

@@ -60,7 +60,7 @@ public class MenuMySQL {
                     break;
 
                 case 4:
-
+                    MenuProductos.iniciar();
                     break;
 
                 case 5:

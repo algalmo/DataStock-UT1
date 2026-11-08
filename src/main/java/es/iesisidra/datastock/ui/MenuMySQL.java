@@ -1,5 +1,7 @@
 package es.iesisidra.datastock.ui;
 
+import es.iesisidra.datastock.datos.ConexionDAO;
+import es.iesisidra.datastock.modelo.InfoBaseDatos;
 import es.iesisidra.datastock.servicio.Inventario;
 import es.iesisidra.datastock.util.ColoresConsola;
 import es.iesisidra.datastock.util.LectorConsola;
@@ -34,7 +36,17 @@ public class MenuMySQL {
             
             switch (opcion) {
                 case 1:
-                    
+                    try {
+        InfoBaseDatos info = ConexionDAO.obtenerInfoConexion();
+        
+        System.out.println(ColoresConsola.pintar("[OK] Conexión establecida correctamente.", ColoresConsola.VERDE));
+        System.out.println("- Base de datos: " + info.getNombreBaseDatos());
+        System.out.println("- Gestor: " + info.getNombreGestor() + " (Versión: " + info.getVersionGestor() + ")");
+        System.out.println("- Total de productos en la tabla: " + info.getTotalProductos());
+
+    } catch (RuntimeException e) {
+        System.out.println(ColoresConsola.pintar("[ERROR] " + e.getMessage(), ColoresConsola.ROJO));
+    }
                     break;
 
                 case 2:

@@ -9,6 +9,79 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductoDAO {
+    //Busca productos
+     
+    public static List<ProductoDetalleDTO> buscarPorNombre(String fragmento) throws SQLException {
+        List<ProductoDetalleDTO> lista = null;
+        try (Connection conexion = ConexionBD.obtenerConexion()) {
+            lista = buscarPorNombre(conexion, fragmento);
+        }
+        return lista;
+    }
+
+    public static List<ProductoDetalleDTO> buscarPorNombre(Connection conexion, String fragmento) throws SQLException {
+        List<ProductoDetalleDTO> lista = new ArrayList<>();
+        String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
+                     "FROM producto p " +
+                     "JOIN categoria c ON p.categoria_id = c.id " +
+                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
+                     "WHERE p.nombre LIKE ? " +
+                     "ORDER BY p.codigo ASC";
+        
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, "%" + fragmento + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new ProductoDetalleDTO(
+                        rs.getString("codigo"),
+                        rs.getString("nombre"),
+                        rs.getBigDecimal("precio"),
+                        rs.getInt("stock"),
+                        rs.getString("cat_nombre"),
+                        rs.getString("prov_nombre")
+                    ));
+                }
+            }
+        }
+        return lista;
+    }
+
+    //Busca productos con stock estrictamente menor que un umbral. 
+     
+    public static List<ProductoDetalleDTO> buscarPorStockMenorQue(int umbral) throws SQLException {
+        List<ProductoDetalleDTO> lista = null;
+        try (Connection conexion = ConexionBD.obtenerConexion()) {
+            lista = buscarPorStockMenorQue(conexion, umbral);
+        }
+        return lista;
+    }
+
+    public static List<ProductoDetalleDTO> buscarPorStockMenorQue(Connection conexion, int umbral) throws SQLException {
+        List<ProductoDetalleDTO> lista = new ArrayList<>();
+        String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
+                     "FROM producto p " +
+                     "JOIN categoria c ON p.categoria_id = c.id " +
+                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
+                     "WHERE p.stock < ? " +
+                     "ORDER BY p.stock ASC, p.codigo ASC";
+        
+        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, umbral);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new ProductoDetalleDTO(
+                        rs.getString("codigo"),
+                        rs.getString("nombre"),
+                        rs.getBigDecimal("precio"),
+                        rs.getInt("stock"),
+                        rs.getString("cat_nombre"),
+                        rs.getString("prov_nombre")
+                    ));
+                }
+            }
+        }
+        return lista;
+    }
 
     public static List<ProductoDetalleDTO> listar() throws SQLException {
         List<ProductoDetalleDTO> lista = null;

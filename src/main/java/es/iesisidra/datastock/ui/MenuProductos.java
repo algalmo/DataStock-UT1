@@ -56,7 +56,7 @@ public class MenuProductos {
     }
     private static void ejecutarAlta() {
         try {
-            String codigo = LectorConsola.leerTexto("Introduzca el código del producto (1-12 car., A-Z, 0-9, guion): ");
+            String codigo = LectorConsola.leerTexto("Introduzca el código del producto (1-12 caracteres): ");
             String codigoValidado = Validador.validarCodigo(codigo);
 
             if (ProductoDAO.existeCodigo(codigoValidado)) {

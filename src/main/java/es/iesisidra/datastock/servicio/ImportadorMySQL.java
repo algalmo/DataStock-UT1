@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List; // El producto de memoria (UT1)
+import java.util.List;
 
 import es.iesisidra.datastock.config.ConexionBD;
 import es.iesisidra.datastock.datos.CategoriaDAO;

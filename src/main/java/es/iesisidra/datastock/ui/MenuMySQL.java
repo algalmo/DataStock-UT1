@@ -76,11 +76,11 @@ public class MenuMySQL {
                     break;
 
                 case 8:
-                    MenuImportacion.ejecutar();
+                    MenuImportacion.ejecutar(this.inventario);
                     break;
 
                 case 9:
-
+                    DemoTransacciones.ejecutar();
                     break;
 
                 case 0:

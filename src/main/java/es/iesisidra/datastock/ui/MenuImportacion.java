@@ -11,11 +11,12 @@ import es.iesisidra.datastock.util.LectorConsola;
 
 public class MenuImportacion {
 
-    public static void ejecutar() {
+    public static void ejecutar(Inventario inventario) {
         System.out.println("\n=== IMPORTACIÓN DE INVENTARIO (JAVA -> MySQL) ===");
 
         // Obtener la lista de memoria
-        List<Producto> productosMemoria = new Inventario().getProductos();
+        List<Producto> productosMemoria = inventario.getProductos();
+
         if (productosMemoria == null || productosMemoria.isEmpty()) {
             System.out.println("No hay productos en el inventario de memoria para importar.");
         } else {

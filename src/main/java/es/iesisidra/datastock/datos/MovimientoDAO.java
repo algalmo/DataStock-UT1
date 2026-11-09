@@ -35,7 +35,7 @@ public class MovimientoDAO {
     public static MovimientoStockDTO obtenerUltimoMovimiento(String codigoProducto) throws SQLException {
         MovimientoStockDTO movimiento = null;
         // Ajusta historial
-        String sql = "SELECT producto_codigo, tipo, cantidad, fecha FROM historial WHERE producto_codigo = ? ORDER BY id DESC LIMIT 1";
+        String sql = "SELECT producto_codigo, tipo, cantidad, fecha FROM movimiento_stock WHERE producto_codigo = ? ORDER BY id DESC LIMIT 1";
         
         try (Connection conexion = ConexionBD.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {

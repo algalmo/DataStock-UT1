@@ -19,7 +19,7 @@ public class DemoTransacciones {
     public static void ejecutar() {
         System.out.println("\n=== DEMOSTRACIÓN DE TRANSACCIONES JDBC ===");
         System.out.println("Se van a utilizar los IDs de categoría de prueba: " + ID_A1 + ", " + ID_A2 + " y " + ID_B1 + ".");
-        System.out.println("Esta es una actividad técnica que no afecta a los datos reales del inventario.");
+        System.out.println("No afecta a los datos del inventario.");
 
         String confirmacion = LectorConsola.leerTexto("¿Desea comenzar la demostración? (S/N): ");
 

@@ -72,7 +72,7 @@ public class MenuMySQL {
                     break;
 
                 case 7:
-
+                    MenuHistorial.iniciar();
                     break;
 
                 case 8:

@@ -51,6 +51,7 @@ public class MovimientoStock {
     /** @return unidades posteriores a la operación. */
     public int getStockPosterior() { return stockPosterior; }
     public void setStockPosterior(int stockPosterior) { this.stockPosterior = stockPosterior; }
+    
     @Override public String toString() {
         return "MovimientoStock{id=" + id + ", productoCodigo='" + productoCodigo + "', tipo=" + tipo
             + ", cantidad=" + cantidad + ", fecha=" + fecha + ", stockAnterior=" + stockAnterior

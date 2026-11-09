@@ -72,7 +72,7 @@ public class MenuProductos {
             boolean precioCorrecto = false;
             while (!precioCorrecto) {
                 try {
-                    String precio = LectorConsola.leerTexto("Introduzca el precio (ej: 49.90): ");
+                    String precio = LectorConsola.leerTexto("Introduzca el precio: ");
                     BigDecimal precioTemp = new BigDecimal(precio.trim());
                     precioValidado = Validador.validarPrecio(precioTemp);
                     precioCorrecto = true;

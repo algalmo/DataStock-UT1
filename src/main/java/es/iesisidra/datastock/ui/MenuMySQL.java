@@ -76,7 +76,7 @@ public class MenuMySQL {
                     break;
 
                 case 8:
-
+                    MenuImportacion.ejecutar();
                     break;
 
                 case 9:

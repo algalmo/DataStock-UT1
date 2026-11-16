@@ -52,7 +52,25 @@ public class Inventario {
 
     }
 
+    /**
+     * Valida un producto utilizando las reglas del inventario.
+     *
+     * @param p Producto que se desea validar.
+     * @return Lista de errores encontrados.
+     */
+
     public List<String> validarProducto(Producto p) {
+        return validarDatosProducto(p);
+    }
+
+    /**
+     * Valida los datos de un producto de forma independiente.
+     *
+     * @param p Producto que se desea validar.
+     * @return Lista de errores, vacía si el producto es válido.
+     */
+
+    public static List<String> validarDatosProducto(Producto p) {
         List<String> errores = new ArrayList<>();
 
         if (p == null) {

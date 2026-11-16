@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import com.google.gson.Gson;
-import java.io.BufferedReader;
+
 import java.util.ArrayList;
 import java.util.List;
 import es.iesisidra.datastock.modelo.Producto;
@@ -31,11 +31,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Element;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+
 
 public class GestorArchivos {
 
@@ -131,128 +130,78 @@ public class GestorArchivos {
     }
 
     // 02
+
     public String importarJSON(String rutaArchivo, Inventario inventario) {
-        String resultado = "";
 
-        if (rutaArchivo == null || rutaArchivo.trim().isEmpty()) {
-            resultado = "La ruta del archivo JSON no es válida.";
-        } else {
-            Path ruta = Path.of(rutaArchivo.trim());
-
-            if (ruta == null || !Files.isRegularFile(ruta) || !Files.isReadable(ruta)) {
-                resultado = "Error: El archivo JSON no existe, no es un fichero o no se puede leer.";
-            } else {
-                int encontrados = 0;
-                int importados = 0;
-                int rechazados = 0;
-                boolean documentoRechazado = false;
-                StringBuilder problemas = new StringBuilder();
-
-                try (BufferedReader br = Files.newBufferedReader(ruta)) {
-                    Gson gson = new Gson();
-
-                    JsonElement raiz = JsonParser.parseReader(br);
-
-                    JsonArray array = null;
-                    if (raiz.isJsonObject()) {
-                        JsonElement nodo = raiz.getAsJsonObject().get("productos");
-                        if (nodo != null && nodo.isJsonArray()) {
-                            array = nodo.getAsJsonArray();
-                        }
-                    }
-
-                    if (array == null) {
-                        documentoRechazado = true;
-                        problemas.append("- Estructura incorrecta: se esperaba un objeto con el array 'productos'.\n");
-                    } else {
-                        encontrados = array.size();
-                        int posicion = 0;
-
-                        for (JsonElement elem : array) {
-                            posicion++;
-
-                            try {
-                                Producto p = gson.fromJson(elem, Producto.class);
-                                List<String> errores = inventario.validarProducto(p);
-
-                                if (elem.isJsonObject() && !elem.getAsJsonObject().has("stock")) {
-                                    errores.add("El stock es obligatorio.");
-                                }
-
-                                String[] camposEnteros = { "stock", "categoriaId", "proveedorId" };
-                                for (String campo : camposEnteros) {
-                                    if (tieneDecimales(elem, campo)) {
-                                        errores.add("El campo " + campo + " debe ser un número entero.");
-                                    }
-                                }
-
-                                String etiqueta = "Producto " + posicion;
-                                if (p != null && p.getCodigo() != null && !p.getCodigo().trim().isEmpty()) {
-                                    etiqueta = p.getCodigo().trim();
-                                }
-
-                                if (!errores.isEmpty()) {
-                                    rechazados++;
-                                    problemas.append("- ").append(etiqueta).append(": ")
-                                            .append(String.join(" ", errores)).append("\n");
-                                } else if (inventario.existeCodigo(p.getCodigo())) {
-                                    rechazados++;
-                                    problemas.append("- ").append(etiqueta)
-                                            .append(": código duplicado, se conserva el existente.\n");
-                                } else {
-                                    inventario.agregarProducto(p);
-                                    importados++;
-                                }
-                            } catch (JsonParseException e) {
-                                rechazados++;
-                                problemas.append("- Producto ").append(posicion)
-                                        .append(": tipos de datos inválidos (precio, stock o IDs no numéricos).\n");
-                            }
-                        }
-                    }
-                } catch (IOException | JsonParseException e) {
-                    documentoRechazado = true;
-                    problemas.append("- No se pudo interpretar el fichero: ").append(e.getMessage()).append("\n");
-                }
-
-                StringBuilder resumen = new StringBuilder();
-                resumen.append("===== IMPORTAR JSON =====\n");
-                resumen.append("Ruta: ").append(rutaArchivo).append("\n");
-
-                if (documentoRechazado) {
-                    resumen.append("INCIDENCIAS:\n").append(problemas);
-                    resumen.append("Importación cancelada: no se ha añadido ningún producto.");
-                } else {
-                    resumen.append("Productos encontrados: ").append(encontrados).append("\n");
-                    resumen.append("Importados: ").append(importados)
-                            .append(" | Rechazados: ").append(rechazados).append("\n");
-
-                    if (rechazados > 0) {
-                        resumen.append("INCIDENCIAS:\n").append(problemas);
-                        resumen.append("Importación finalizada con incidencias.");
-                    } else {
-                        resumen.append("Importación finalizada con éxito.");
-                    }
-                }
-
-                resultado = resumen.toString();
-            }
+        if (rutaArchivo == null || rutaArchivo.isBlank()) {
+            return "La ruta del archivo JSON no es válida.";
         }
 
-        return resultado;
+        try {
+            LectorProductosJson.ResultadoLectura lectura = new LectorProductosJson().leer(Path.of(rutaArchivo.trim()));
+
+            return incorporarProductosJson(rutaArchivo, inventario, lectura);
+
+        } catch (IOException | JsonParseException | IllegalArgumentException e) {
+            return "===== IMPORTAR JSON =====\nRuta: " + rutaArchivo
+                    + "\nINCIDENCIAS:\n- " + e.getMessage()
+                    + "\nImportación cancelada: no se ha añadido ningún producto.";
+        }
     }
 
-    private boolean tieneDecimales(JsonElement registro, String campo) {
-        boolean decimales = false;
+    /**
+     * Incorpora al inventario los productos válidos leídos desde JSON.
+     *
+     * @param rutaArchivo Ruta del fichero JSON.
+     * @param inventario  Inventario donde se añaden los productos.
+     * @param lectura     Resultado obtenido del lector JSON.
+     * @return Resumen de la importación.
+     */
 
-        if (registro.isJsonObject()) {
-            JsonElement valor = registro.getAsJsonObject().get(campo);
-            if (valor != null && valor.isJsonPrimitive() && valor.getAsJsonPrimitive().isNumber()) {
-                decimales = valor.getAsBigDecimal().remainder(BigDecimal.ONE).signum() != 0;
+    public String incorporarProductosJson(
+            String rutaArchivo,
+            Inventario inventario,
+            LectorProductosJson.ResultadoLectura lectura) {
+
+        int importados = 0;
+        int rechazados = lectura.encontrados() - lectura.validos().size();
+        StringBuilder problemas = new StringBuilder();
+
+        for (String incidencia : lectura.incidencias()) {
+            problemas.append("- ").append(incidencia).append("\n");
+        }
+
+        for (Producto p : lectura.validos()) {
+            if (inventario.existeCodigo(p.getCodigo())) {
+                rechazados++;
+                problemas.append("- ").append(p.getCodigo())
+                        .append(": código duplicado, se conserva el existente.\n");
+
+            } else if (inventario.agregarProducto(p)) {
+                importados++;
+
+            } else {
+                rechazados++;
+                problemas.append("- ").append(p.getCodigo())
+                        .append(": no se pudo añadir al inventario.\n");
             }
         }
 
-        return decimales;
+        StringBuilder resumen = new StringBuilder("===== IMPORTAR JSON =====\n");
+
+        resumen.append("Ruta: ").append(rutaArchivo).append("\n")
+                .append("Productos encontrados: ").append(lectura.encontrados()).append("\n")
+                .append("Importados: ").append(importados)
+                .append(" | Rechazados: ").append(rechazados).append("\n");
+
+        if (rechazados > 0) {
+            resumen.append("INCIDENCIAS:\n").append(problemas)
+                    .append("Importación finalizada con incidencias.");
+        } else {
+            resumen.append("Importación finalizada con éxito.");
+        }
+
+        return resumen.toString();
     }
 
     // 03

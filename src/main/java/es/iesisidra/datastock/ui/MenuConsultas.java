@@ -9,6 +9,7 @@ import es.iesisidra.datastock.util.ColoresConsola;
 import es.iesisidra.datastock.util.LectorConsola;
 import es.iesisidra.datastock.util.TraductorSql;
 import es.iesisidra.datastock.validacion.Validador;
+import es.iesisidra.datastock.datos.ConsultaProductoJdbc;
 
 public class MenuConsultas {
     public static void iniciar() {
@@ -43,20 +44,26 @@ public class MenuConsultas {
             }
         } while (opcion != 0);
     }
+
     private static void ejecutarListadoCompleto() {
         try {
             List<ProductoDetalleDTO> lista = ProductoDAO.listar();
             if (lista.isEmpty()) {
                 System.out.println("No hay productos registrados en el sistema.");
             } else {
-                System.out.println("\n-------------------------------------------------------------------------------------------------");
-                System.out.printf("%-12s | %-25s | %-10s | %-6s | %-15s | %-15s%n", "CÓDIGO", "NOMBRE", "PRECIO", "STOCK", "CATEGORÍA", "PROVEEDOR");
-                System.out.println("-------------------------------------------------------------------------------------------------");
+                System.out.println(
+                        "\n-------------------------------------------------------------------------------------------------");
+                System.out.printf("%-12s | %-25s | %-10s | %-6s | %-15s | %-15s%n", "CÓDIGO", "NOMBRE", "PRECIO",
+                        "STOCK", "CATEGORÍA", "PROVEEDOR");
+                System.out.println(
+                        "-------------------------------------------------------------------------------------------------");
                 for (ProductoDetalleDTO p : lista) {
                     System.out.printf("%-12s | %-25s | %8.2f € | %6d | %-15s | %-15s%n",
-                            p.getCodigo(), p.getNombre(), p.getPrecio(), p.getStock(), p.getNombreCategoria(), p.getNombreProveedor());
+                            p.getCodigo(), p.getNombre(), p.getPrecio(), p.getStock(), p.getNombreCategoria(),
+                            p.getNombreProveedor());
                 }
-                System.out.println("-------------------------------------------------------------------------------------------------");
+                System.out.println(
+                        "-------------------------------------------------------------------------------------------------");
                 System.out.println("Total de productos encontrados: " + lista.size());
             }
         } catch (SQLException e) {
@@ -69,7 +76,8 @@ public class MenuConsultas {
             String codigo = LectorConsola.leerTexto("Introduzca el código exacto a buscar: ");
             String codigoValidado = Validador.validarCodigo(codigo);
 
-            ProductoDetalleDTO p = ProductoDAO.buscarPorCodigo(codigoValidado);
+            ProductoDetalleDTO p = new ConsultaProductoJdbc().buscarPorCodigo(codigoValidado).orElse(null);
+
             if (p == null) {
                 System.out.println("No existe ningún producto con el código especificado.");
             } else {
@@ -92,7 +100,8 @@ public class MenuConsultas {
         try {
             String fragmento = LectorConsola.leerTexto("Introduzca el fragmento de nombre a buscar: ");
             if (fragmento == null || fragmento.trim().isEmpty()) {
-                System.out.println(ColoresConsola.pintar("[ERROR] El fragmento de búsqueda no puede estar vacío.", ColoresConsola.ROJO));
+                System.out.println(ColoresConsola.pintar("[ERROR] El fragmento de búsqueda no puede estar vacío.",
+                        ColoresConsola.ROJO));
                 return;
             }
 
@@ -103,7 +112,8 @@ public class MenuConsultas {
                 System.out.println("\n--- RESULTADOS DE BÚSQUEDA POR NOMBRE (" + lista.size() + ") ---");
                 for (ProductoDetalleDTO p : lista) {
                     System.out.printf("[%s] %s | %.2f € | Stock: %d | Cat: %s | Prov: %s%n",
-                            p.getCodigo(), p.getNombre(), p.getPrecio(), p.getStock(), p.getNombreCategoria(), p.getNombreProveedor());
+                            p.getCodigo(), p.getNombre(), p.getPrecio(), p.getStock(), p.getNombreCategoria(),
+                            p.getNombreProveedor());
                 }
                 System.out.println("Total de coincidencias: " + lista.size());
             }
@@ -116,7 +126,8 @@ public class MenuConsultas {
         try {
             int umbral = LectorConsola.leerEntero("Introduzca el umbral de stock (entero >= 0): ");
             if (umbral < 0) {
-                System.out.println(ColoresConsola.pintar("[ERROR] El umbral no puede ser negativo.", ColoresConsola.ROJO));
+                System.out.println(
+                        ColoresConsola.pintar("[ERROR] El umbral no puede ser negativo.", ColoresConsola.ROJO));
                 return;
             }
 
@@ -127,7 +138,8 @@ public class MenuConsultas {
                 System.out.println("\n--- PRODUCTOS CON STOCK < " + umbral + " (" + lista.size() + ") ---");
                 for (ProductoDetalleDTO p : lista) {
                     System.out.printf("Stock: %3d | [%s] %s | %.2f € | Cat: %s | Prov: %s%n",
-                            p.getStock(), p.getCodigo(), p.getNombre(), p.getPrecio(), p.getNombreCategoria(), p.getNombreProveedor());
+                            p.getStock(), p.getCodigo(), p.getNombre(), p.getPrecio(), p.getNombreCategoria(),
+                            p.getNombreProveedor());
                 }
                 System.out.println("Total de productos listados: " + lista.size());
             }
@@ -136,4 +148,3 @@ public class MenuConsultas {
         }
     }
 }
-

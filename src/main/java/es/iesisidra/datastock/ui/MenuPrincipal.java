@@ -1,9 +1,14 @@
 package es.iesisidra.datastock.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import com.google.gson.JsonParseException;
 
 import es.iesisidra.datastock.servicio.GestorArchivos;
 import es.iesisidra.datastock.servicio.Inventario;
+import es.iesisidra.datastock.servicio.LectorProductosJson;
 import es.iesisidra.datastock.util.ColoresConsola;
 import es.iesisidra.datastock.util.LectorConsola;
 
@@ -54,9 +59,7 @@ public class MenuPrincipal {
 
                 // Importar JSON
                 case 2 -> {
-                    String ruta = LectorConsola.leerTexto("Ruta del fichero JSON: ");
-                    String resultado = gestorArchivos.importarJSON(ruta, inventario);
-                    System.out.println(resultado);
+                    importarProductosJson();
                     LectorConsola.pausar();
                 }
 
@@ -80,6 +83,44 @@ public class MenuPrincipal {
                 default -> System.out.println("Opción no válida.");
             }
         } while (opcion != 0);
+    }
+
+    /**
+     * Importa productos desde un fichero JSON utilizando
+     * el componente reutilizable LectorProductosJson.
+     */
+    private void importarProductosJson() {
+
+        String ruta = LectorConsola.leerTexto("Ruta del fichero JSON: ");
+
+        try {
+            if (ruta == null || ruta.isBlank()) {
+                throw new IllegalArgumentException(
+                        "La ruta del archivo JSON no es válida.");
+            }
+
+            LectorProductosJson.ResultadoLectura lectura = new LectorProductosJson().leer(Path.of(ruta.trim()));
+
+            int productosAntes = inventario.getProductos().size();
+
+            String resumen = gestorArchivos.incorporarProductosJson(
+                    ruta, inventario, lectura);
+
+            int productosImportados = inventario.getProductos().size() - productosAntes;
+
+            System.out.println(resumen);
+
+            if (productosImportados == lectura.encontrados()) {
+                ColoresConsola.ok("Importación JSON completada.");
+            } else {
+                ColoresConsola.aviso(
+                        "Importación JSON completada con incidencias.");
+            }
+
+        } catch (IOException | JsonParseException | IllegalArgumentException e) {
+            ColoresConsola.error(
+                    "No se pudo importar el JSON: " + e.getMessage());
+        }
     }
 
     private void mostrarCabecera() {

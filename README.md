@@ -246,3 +246,42 @@ En DataStock, al tratarse de una aplicación de consola mono-usuario interactiva
 [x] Etiqueta Git: Etiqueta UT2-v1.0 creada y subida al repositorio remoto (git push origin UT2-v1.0).
 
 [x] Documento de Pruebas: Archivo PDF generado y listo para subir al buzón Moodle.
+
+
+## UT3: Componentes reutilizables
+
+En esta tercera entrega de DataStock se han modularizado dos operaciones
+que ya estaban desarrolladas en las versiones anteriores.
+
+### Componente JSON
+
+Se ha creado la clase `LectorProductosJson`, encargada de leer ficheros
+JSON y devolver los productos válidos junto con las incidencias detectadas.
+
+Separar la lectura del menú permite reutilizar el componente en otras
+aplicaciones y facilita las pruebas. Como inconveniente, es necesario
+crear más clases y organizar las llamadas entre ellas.
+
+### Componente JDBC
+
+Se ha creado `ConsultaProductoJdbc`, que permite buscar productos en
+MySQL mediante PreparedStatement y ResultSet.
+
+Separar la consulta de la presentación permite utilizarla sin depender
+de la consola y evita duplicar código SQL.
+
+### Herramientas utilizadas
+
+- Visual Studio Code: desarrollo y organización del código Java.
+- Maven: gestión de dependencias y compilación del proyecto.
+- Javadoc: documentación de clases y métodos públicos.
+- Java 21: lenguaje y entorno de ejecución de la aplicación.
+
+### Integración
+
+Los componentes se han integrado en las opciones existentes:
+
+- Opción 2 del menú principal: importar productos desde JSON.
+- Opción 7 > 5 > 2: buscar productos por código en MySQL.
+
+Se mantienen las funcionalidades de UT1 y UT2 sin añadir nuevos menús.

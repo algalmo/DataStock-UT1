@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductoDAO {
-    //Busca productos
-     
+    // Busca productos
+
     public static List<ProductoDetalleDTO> buscarPorNombre(String fragmento) throws SQLException {
         List<ProductoDetalleDTO> lista = null;
         try (Connection conexion = ConexionBD.obtenerConexion()) {
@@ -22,32 +22,31 @@ public class ProductoDAO {
     public static List<ProductoDetalleDTO> buscarPorNombre(Connection conexion, String fragmento) throws SQLException {
         List<ProductoDetalleDTO> lista = new ArrayList<>();
         String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
-                     "FROM producto p " +
-                     "JOIN categoria c ON p.categoria_id = c.id " +
-                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
-                     "WHERE p.nombre LIKE ? " +
-                     "ORDER BY p.codigo ASC";
-        
+                "FROM producto p " +
+                "JOIN categoria c ON p.categoria_id = c.id " +
+                "JOIN proveedor pr ON p.proveedor_id = pr.id " +
+                "WHERE p.nombre LIKE ? " +
+                "ORDER BY p.codigo ASC";
+
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, "%" + fragmento + "%");
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     lista.add(new ProductoDetalleDTO(
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getBigDecimal("precio"),
-                        rs.getInt("stock"),
-                        rs.getString("cat_nombre"),
-                        rs.getString("prov_nombre")
-                    ));
+                            rs.getString("codigo"),
+                            rs.getString("nombre"),
+                            rs.getBigDecimal("precio"),
+                            rs.getInt("stock"),
+                            rs.getString("cat_nombre"),
+                            rs.getString("prov_nombre")));
                 }
             }
         }
         return lista;
     }
 
-    //Busca productos con stock estrictamente menor que un umbral. 
-     
+    // Busca productos con stock estrictamente menor que un umbral.
+
     public static List<ProductoDetalleDTO> buscarPorStockMenorQue(int umbral) throws SQLException {
         List<ProductoDetalleDTO> lista = null;
         try (Connection conexion = ConexionBD.obtenerConexion()) {
@@ -59,24 +58,23 @@ public class ProductoDAO {
     public static List<ProductoDetalleDTO> buscarPorStockMenorQue(Connection conexion, int umbral) throws SQLException {
         List<ProductoDetalleDTO> lista = new ArrayList<>();
         String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
-                     "FROM producto p " +
-                     "JOIN categoria c ON p.categoria_id = c.id " +
-                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
-                     "WHERE p.stock < ? " +
-                     "ORDER BY p.stock ASC, p.codigo ASC";
-        
+                "FROM producto p " +
+                "JOIN categoria c ON p.categoria_id = c.id " +
+                "JOIN proveedor pr ON p.proveedor_id = pr.id " +
+                "WHERE p.stock < ? " +
+                "ORDER BY p.stock ASC, p.codigo ASC";
+
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, umbral);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     lista.add(new ProductoDetalleDTO(
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getBigDecimal("precio"),
-                        rs.getInt("stock"),
-                        rs.getString("cat_nombre"),
-                        rs.getString("prov_nombre")
-                    ));
+                            rs.getString("codigo"),
+                            rs.getString("nombre"),
+                            rs.getBigDecimal("precio"),
+                            rs.getInt("stock"),
+                            rs.getString("cat_nombre"),
+                            rs.getString("prov_nombre")));
                 }
             }
         }
@@ -94,14 +92,14 @@ public class ProductoDAO {
     public static List<ProductoDetalleDTO> listar(Connection conexion) throws SQLException {
         List<ProductoDetalleDTO> lista = new ArrayList<>();
         String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
-                     "FROM producto p " +
-                     "JOIN categoria c ON p.categoria_id = c.id " +
-                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
-                     "ORDER BY p.codigo ASC";
-        
+                "FROM producto p " +
+                "JOIN categoria c ON p.categoria_id = c.id " +
+                "JOIN proveedor pr ON p.proveedor_id = pr.id " +
+                "ORDER BY p.codigo ASC";
+
         try (PreparedStatement ps = conexion.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            
+                ResultSet rs = ps.executeQuery()) {
+
             boolean hayDatos = rs.next();
             while (hayDatos) {
                 String codigo = rs.getString("codigo");
@@ -110,7 +108,7 @@ public class ProductoDAO {
                 int stock = rs.getInt("stock");
                 String catNombre = rs.getString("cat_nombre");
                 String provNombre = rs.getString("prov_nombre");
-                
+
                 lista.add(new ProductoDetalleDTO(codigo, nombre, precio, stock, catNombre, provNombre));
                 hayDatos = rs.next();
             }
@@ -118,38 +116,26 @@ public class ProductoDAO {
         return lista;
     }
 
-    public static ProductoDetalleDTO buscarPorCodigo(String codigo) throws SQLException {
-        ProductoDetalleDTO producto = null;
-        try (Connection conexion = ConexionBD.obtenerConexion()) {
-            producto = buscarPorCodigo(conexion, codigo);
-        }
-        return producto;
+    /**
+     * Busca un producto manteniendo la compatibilidad con UT2.
+     */
+    public static ProductoDetalleDTO buscarPorCodigo(String codigo)
+            throws SQLException {
+
+        return new ConsultaProductoJdbc()
+                .buscarPorCodigo(codigo)
+                .orElse(null);
     }
 
-    public static ProductoDetalleDTO buscarPorCodigo(Connection conexion, String codigo) throws SQLException {
-        ProductoDetalleDTO producto = null;
-        String sql = "SELECT p.codigo, p.nombre, p.precio, p.stock, c.nombre AS cat_nombre, pr.nombre AS prov_nombre " +
-                     "FROM producto p " +
-                     "JOIN categoria c ON p.categoria_id = c.id " +
-                     "JOIN proveedor pr ON p.proveedor_id = pr.id " +
-                     "WHERE p.codigo = ?";
-        
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, codigo);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    producto = new ProductoDetalleDTO(
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getBigDecimal("precio"),
-                        rs.getInt("stock"),
-                        rs.getString("cat_nombre"),
-                        rs.getString("prov_nombre")
-                    );
-                }
-            }
-        }
-        return producto;
+    /**
+     * Busca un producto utilizando una conexión existente.
+     */
+    public static ProductoDetalleDTO buscarPorCodigo(
+            Connection conexion, String codigo) throws SQLException {
+
+        return new ConsultaProductoJdbc()
+                .buscarPorCodigo(conexion, codigo)
+                .orElse(null);
     }
 
     public static boolean existeCodigo(String codigo) throws SQLException {
@@ -172,13 +158,15 @@ public class ProductoDAO {
         return existe;
     }
 
-    public static void insertar(String codigo, String nombre, BigDecimal precio, int stock, int categoriaId, int proveedorId) throws SQLException {
+    public static void insertar(String codigo, String nombre, BigDecimal precio, int stock, int categoriaId,
+            int proveedorId) throws SQLException {
         try (Connection conexion = ConexionBD.obtenerConexion()) {
             insertar(conexion, codigo, nombre, precio, stock, categoriaId, proveedorId);
         }
     }
 
-    public static void insertar(Connection conexion, String codigo, String nombre, BigDecimal precio, int stock, int categoriaId, int proveedorId) throws SQLException {
+    public static void insertar(Connection conexion, String codigo, String nombre, BigDecimal precio, int stock,
+            int categoriaId, int proveedorId) throws SQLException {
         String sql = "INSERT INTO producto (codigo, nombre, precio, stock, categoria_id, proveedor_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, codigo);
@@ -191,7 +179,8 @@ public class ProductoDAO {
         }
     }
 
-    public static int actualizar(String codigo, String nuevoNombre, BigDecimal nuevoPrecio, int nuevaCategoriaId, int nuevoProveedorId) throws SQLException {
+    public static int actualizar(String codigo, String nuevoNombre, BigDecimal nuevoPrecio, int nuevaCategoriaId,
+            int nuevoProveedorId) throws SQLException {
         int filas = 0;
         try (Connection conexion = ConexionBD.obtenerConexion()) {
             filas = actualizar(conexion, codigo, nuevoNombre, nuevoPrecio, nuevaCategoriaId, nuevoProveedorId);
@@ -199,7 +188,8 @@ public class ProductoDAO {
         return filas;
     }
 
-    public static int actualizar(Connection conexion, String codigo, String nuevoNombre, BigDecimal nuevoPrecio, int nuevaCategoriaId, int nuevoProveedorId) throws SQLException {
+    public static int actualizar(Connection conexion, String codigo, String nuevoNombre, BigDecimal nuevoPrecio,
+            int nuevaCategoriaId, int nuevoProveedorId) throws SQLException {
         int filas = 0;
         String sql = "UPDATE producto SET nombre = ?, precio = ?, categoria_id = ?, proveedor_id = ? WHERE codigo = ?";
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
